@@ -1,0 +1,118 @@
+/* Identidade visual Wetzel Automotiva: VERMELHO, BRANCO e PRETO (sem azul).
+   Vermelho da marca (#d7261e / #ac1b17), preto (#1a1a1a), cinzas do site
+   oficial (#5f5f5f / #f7f7f7) e a fonte Manrope.
+
+   Este arquivo redefine os tokens de cor do style.css do Gerenciador e o
+   cabeçalho. Carregado depois do style.css, vale para o sistema inteiro
+   (Gerenciador + Ações 8D). Se a rede não alcançar o Google Fonts, a fonte
+   cai para Segoe UI/Arial sem quebrar nada. */
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+  /* Os nomes "blue-*" vêm do style.css do Gerenciador; aqui viram vermelho/preto Wetzel. */
+  --blue-900: #1a1a1a;   /* títulos e textos escuros: preto */
+  --blue-700: #ac1b17;   /* vermelho escuro: hover, links */
+  --blue-600: #d7261e;   /* vermelho Wetzel: botões, destaques, aba ativa */
+  --blue-50: #fdeceb;    /* vermelho bem claro: fundos de destaque */
+  --wetzel-vermelho: #d7261e;
+  --wetzel-vermelho-escuro: #ac1b17;
+  --wetzel-preto: #1a1a1a;
+  --ink: #1a1a1a;
+  --ink-soft: #5f5f5f;
+  --line: #dddddd;
+  --bg: #f7f7f7;
+}
+
+body { font-family: "Manrope", "Segoe UI", Arial, Helvetica, sans-serif; }
+
+/* --- Cabeçalho: vermelho Wetzel com o logo, faixa preta embaixo ------------------ */
+.topbar {
+  background: linear-gradient(180deg, #d7261e, #b81f18);
+  border-bottom: 4px solid #1a1a1a;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  letter-spacing: 0.1px;
+}
+.brand::before {
+  content: "";
+  width: 92px;
+  height: 40px;
+  background: url("img/logo_wetzel.png") center / contain no-repeat;
+  flex: 0 0 auto;
+  margin-right: 14px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+}
+.brand-accent { color: #ffd9d6; margin-left: 6px; }
+.nav a { color: #fff; font-weight: 600; }
+.nav a:hover { background: rgba(0, 0, 0, 0.18); color: #fff; }
+.nav a.active { background: #fff; color: #d7261e; box-shadow: inset 0 -3px 0 #1a1a1a; }
+
+/* --- Textos, botões e destaques --------------------------------------------------- */
+.page-header h1 { color: #1a1a1a; font-weight: 800; }
+.btn-primary { background: #d7261e; color: #fff; }
+.btn-primary:hover { background: #ac1b17; filter: none; }
+.chip input:checked + span { background: #d7261e; border-color: #d7261e; color: #fff; }
+.chip:hover span { border-color: #d7261e; }
+.dash-kpi { border-top-color: #1a1a1a; }
+.dash-kpi-valor { color: #1a1a1a; }
+.dash-tooltip { background: #1a1a1a; }
+thead th { background: #f1f1f1; color: #1a1a1a; }
+tbody tr:hover { background: #fff7f6; }
+.id-mrhb { color: #d7261e; }
+.btn-editar { border-color: #d7261e; color: #d7261e; }
+.btn-editar:hover { background: #fdeceb; }
+.btn-filtro-coluna:hover { background: rgba(215, 38, 30, 0.12); color: #ac1b17; }
+.btn-filtro-coluna.ativo { color: #d7261e; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #d7261e; box-shadow: 0 0 0 3px #fdeceb; }
+
+/* Mesma largura em todas as telas do sistema (Gerenciador e Ações 8D) e no cabeçalho */
+.page, .topbar-inner { max-width: 1400px; }
+
+/* --- Indicador "Online" (canto superior direito) ---------------------------------- */
+.a8-online {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  cursor: default;
+}
+.nav + .a8-online { margin-left: 16px; }
+.a8-online-bolinha {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+  animation: a8-piscar 1.4s ease-in-out infinite;
+}
+.a8-online-bolinha::after { /* onda que se expande, reforça o "ao vivo" */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: a8-onda 1.4s ease-out infinite;
+}
+.a8-online.offline .a8-online-bolinha { background: #9ca3af; animation: none; }
+.a8-online.offline .a8-online-bolinha::after { display: none; }
+.a8-online.offline { background: rgba(0, 0, 0, 0.45); }
+@keyframes a8-piscar { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@keyframes a8-onda { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .a8-online-bolinha, .a8-online-bolinha::after { animation: none; }
+}
+@media print { .a8-online { display: none !important; } }
+.topbar-inner:has(.a8-online) .nav { margin-left: auto; }

@@ -1,0 +1,65 @@
+{% extends "acoes8d/_layout.html" %}
+{% block titulo_a8 %}Gestão de Ações{% endblock %}
+{% block conteudo_a8 %}
+<div class="a8-pagina-larga">
+  <div class="page-header a8-cabecalho-com-botao">
+    <div>
+      <h1>Gestão de Ações</h1>
+      <p class="subtitle">Todas as ações de todos os A3 — quem é o responsável, setor, prazo, dias em aberto e o que está atrasado.</p>
+    </div>
+    <div class="a8-botoes-linha">
+      <button type="button" class="btn btn-secondary a8-btn-imprimir-pagina" onclick="A8.imprimirPagina()" title="Imprime ou salva em PDF (escolha &quot;Salvar como PDF&quot;) em folha A3 paisagem">Imprimir A3</button>
+      <button type="button" class="btn btn-secondary" id="a8-btn-exportar">Exportar CSV</button>
+      <button type="button" class="btn btn-primary" id="a8-btn-nova-acao">+ Nova ação</button>
+    </div>
+  </div>
+
+  <div id="a8-kpis-acoes" class="dash-kpis a8-kpis-compactos"></div>
+
+  <div class="a8-areas" id="a8-areas" role="group" aria-label="Filtrar por área"></div>
+
+  <div class="dash-filtros a8-filtros-acoes">
+    <div class="dash-filtro-grupo"><span class="dash-filtro-rotulo">Analista responsável:</span><select id="a8-f-analista" aria-label="Analista responsável"></select><div class="a8-botoes-filtro" id="a8-f-analista-botoes" role="group" aria-label="Analista responsável"></div></div>
+    <div class="dash-filtro-grupo"><label class="dash-filtro-rotulo" for="a8-f-cliente">Cliente:</label><select id="a8-f-cliente"></select></div>
+    <div class="dash-filtro-grupo a8-d-periodo" title="Pela data de emissão do A3">
+      <label class="dash-filtro-rotulo" for="a8-f-de">Período:</label>
+      <input type="date" id="a8-f-de" aria-label="Data de início" />
+      <span>a</span>
+      <input type="date" id="a8-f-ate" aria-label="Data de fim" />
+    </div>
+    <div class="dash-filtro-grupo a8-d-busca">
+      <label class="dash-filtro-rotulo" for="a8-f-id">ID Wetzel:</label>
+      <input type="search" id="a8-f-id" list="a8-f-ids" placeholder="Digite o ID (ex.: E-7023)" autocomplete="off" />
+      <datalist id="a8-f-ids"></datalist>
+    </div>
+    <button type="button" class="btn btn-secondary btn-small" id="a8-f-limpar">Limpar filtros</button>
+  </div>
+  <div class="a8-filtros-recebidos">
+    <div class="a8-filtros-ativos" id="a8-f-outros" hidden></div>
+  </div>
+
+  <div class="card a8-secao a8-resumo-pessoas">
+    <div class="a8-resumo-pessoas-topo">
+      <strong class="a8-card-titulo">Ações abertas por responsável</strong>
+      <span class="a8-ajuda">Clique em uma pessoa para filtrar as ações dela.</span>
+    </div>
+    <div id="a8-resumo-pessoas" class="a8-pessoas-grade"></div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar a8-toolbar">
+      <strong class="a8-card-titulo">Ações</strong>
+      <span class="contador" id="a8-contador-acoes"></span>
+    </div>
+    <div class="table-wrap a8-tabela-rolagem">
+      <table class="a8-tabela-controle" id="a8-tabela-acoes">
+        <thead><tr id="a8-cabecalho-acoes"></tr></thead>
+        <tbody id="a8-corpo-acoes"><tr><td colspan="11" class="loading">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts_a8 %}
+<script src="{{ url_for('acoes8d.static', filename='acoes.js') }}"></script>
+{% endblock %}

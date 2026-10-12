@@ -1,0 +1,30 @@
+{% extends "acoes8d/_layout.html" %}
+{% block titulo_a8 %}Cadastro{% endblock %}
+{% block conteudo_a8 %}
+<div class="page-header">
+  <h1>Cadastro de pessoas e setores</h1>
+  <p class="subtitle">Cadastro usado como sugestão ao atribuir ações e montar a equipe do 8D. Quem recebe uma ação entra aqui automaticamente.</p>
+</div>
+
+<div class="card a8-secao">
+  <form id="a8-form-pessoa" class="a8-form-linha" novalidate>
+    <div class="field"><label for="a8-p-nome">Nome <span class="req">*</span></label><input id="a8-p-nome" name="nome" /></div>
+    <div class="field"><label for="a8-p-setor">Setor</label><input id="a8-p-setor" name="setor" list="a8-lista-setores" /></div>
+    <div class="field"><label for="a8-p-email">E-mail</label><input id="a8-p-email" name="email" type="email" /></div>
+    <button type="submit" class="btn btn-primary">Adicionar</button>
+  </form>
+  <div id="a8-pessoas-alerta" class="alert error" hidden></div>
+</div>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Nome</th><th>Setor</th><th>E-mail</th><th class="a8-num">Ações abertas</th><th>Ativo</th><th></th></tr></thead>
+      <tbody id="a8-corpo-pessoas"><tr><td colspan="6" class="loading">Carregando…</td></tr></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+{% block scripts_a8 %}
+<script src="{{ url_for('acoes8d.static', filename='pessoas.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Sistema PDCA / 8D{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('acoes8d.static', filename='tema_wetzel.css') }}" />
+</head>
+<body>
+  {# Cópia do base.html do Gerenciador PDCA, só para testar o módulo sozinho.
+     Na integração, o TI usa o base.html do próprio Gerenciador (ver INTEGRACAO_TI.md). #}
+  <header class="topbar">
+    <div class="topbar-inner">
+      <span class="brand">Gerenciador PDCA <span class="brand-accent">/ 8D</span></span>
+      <div class="a8-online" data-ping="{{ url_for('acoes8d.api_ping') }}" title="Sistema no ar" role="status" aria-live="polite">
+        <span class="a8-online-bolinha" aria-hidden="true"></span><span class="a8-online-texto">Online</span>
+      </div>
+    </div>
+  </header>
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+  <script src="{{ url_for('acoes8d.static', filename='status_online.js') }}"></script>
+</body>
+</html>

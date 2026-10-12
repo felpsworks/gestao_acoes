@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{% block titulo_a8 %}8D{% endblock %} · Sistema PDCA / 8D{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('acoes8d.static', filename='acoes8d.css') }}" />
+<link rel="stylesheet" href="{{ url_for('acoes8d.static', filename='tema_wetzel.css') }}" />
+<nav class="a8-subnav" aria-label="8D">
+  <a href="{{ url_for('acoes8d.dashboard') }}" class="{{ 'ativo' if aba_a8 == 'dashboard' else '' }}">Visão Geral</a>
+  <a href="{{ url_for('acoes8d.analises') }}" class="{{ 'ativo' if aba_a8 == 'analises' else '' }}">Formulário A3</a>
+  <a href="{{ url_for('acoes8d.controle_acoes') }}" class="{{ 'ativo' if aba_a8 == 'acoes' else '' }}">Gestão de Ações</a>
+  <a href="{{ url_for('acoes8d.pessoas') }}" class="{{ 'ativo' if aba_a8 == 'pessoas' else '' }}">Cadastro</a>
+</nav>
+<header class="a8-cabecalho-impressao" aria-hidden="true">
+  <img src="{{ url_for('acoes8d.static', filename='img/logo_wetzel.png') }}" alt="Wetzel Automotiva" />
+  <div>
+    <strong class="a8-ci-titulo">{{ self.titulo_a8() }}</strong>
+    <span class="a8-ci-sub">Gerenciador PDCA / 8D</span>
+  </div>
+  <div class="a8-ci-info">
+    <span id="a8-ci-data"></span>
+    <span id="a8-ci-filtros"></span>
+  </div>
+</header>
+{% block conteudo_a8 %}{% endblock %}
+
+{# Modal de ação compartilhado (Editor A3 e Controle de Ações) #}
+<div id="a8-modal-acao" class="modal-overlay" hidden>
+  <div class="modal-card">
+    <div class="modal-header">
+      <div>
+        <h2 id="a8-modal-acao-titulo">Nova ação</h2>
+        <p id="a8-modal-acao-subtitulo" class="subtitle-modal"></p>
+      </div>
+      <button type="button" class="modal-close" data-fechar-modal aria-label="Fechar">&times;</button>
+    </div>
+    <div id="a8-modal-acao-alerta" class="alert error a8-modal-alerta" hidden></div>
+    <form id="a8-form-acao" class="form-grid modal-form-grid a8-form-2col" novalidate>
+      <div class="field field-wide" id="a8-campo-analise">
+        <label for="a8-acao-analise">Análise A3 (ID Wetzel) <span class="req">*</span></label>
+        <select id="a8-acao-analise" name="analise_id"></select>
+      </div>
+      <div class="field">
+        <label for="a8-acao-grupo">Tipo de ação <span class="req">*</span></label>
+        <select id="a8-acao-grupo" name="grupo"></select>
+      </div>
+      <div class="field">
+        <label for="a8-acao-subgrupo">Subtipo</label>
+        <select id="a8-acao-subgrupo" name="subgrupo"></select>
+      </div>
+      <div class="field field-wide">
+        <label for="a8-acao-descricao">Descrição da ação <span class="req">*</span></label>
+        <textarea id="a8-acao-descricao" name="descricao" rows="3"></textarea>
+      </div>
+      <div class="field">
+        <label for="a8-acao-responsavel">Responsável <span class="req">*</span></label>
+        <input id="a8-acao-responsavel" name="responsavel" list="a8-lista-pessoas" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="a8-acao-setor">Setor</label>
+        <input id="a8-acao-setor" name="setor" list="a8-lista-setores" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="a8-acao-abertura">Data de abertura</label>
+        <input id="a8-acao-abertura" name="data_abertura" type="date" />
+      </div>
+      <div class="field">
+        <label for="a8-acao-prazo">Prazo <span class="req">*</span></label>
+        <input id="a8-acao-prazo" name="prazo" type="date" />
+        <span id="a8-acao-prazo-dica" class="hint"></span>
+      </div>
+      <div class="field field-wide" id="a8-campo-motivo" hidden>
+        <label for="a8-acao-motivo">Motivo da reprogramação do prazo <span class="req">*</span></label>
+        <input id="a8-acao-motivo" name="motivo" />
+      </div>
+      <div class="field">
+        <label for="a8-acao-status">Status</label>
+        <select id="a8-acao-status" name="status"></select>
+      </div>
+      <div class="field">
+        <label for="a8-acao-conclusao">Data de conclusão</label>
+        <input id="a8-acao-conclusao" name="data_conclusao" type="date" />
+      </div>
+      <div class="field field-wide" id="a8-campo-eficaz" hidden>
+        <label for="a8-acao-eficaz">Eficaz?</label>
+        <select id="a8-acao-eficaz" name="eficaz"></select>
+      </div>
+      <div class="field field-wide">
+        <label for="a8-acao-abrangencia">Abrangência (processos / peças similares)</label>
+        <input id="a8-acao-abrangencia" name="abrangencia" />
+      </div>
+      <div class="field field-wide">
+        <label for="a8-acao-observacao">Observação / evidência</label>
+        <textarea id="a8-acao-observacao" name="observacao" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-excluir a8-mr-auto" id="a8-acao-excluir" hidden>Excluir ação</button>
+        <button type="button" class="btn btn-secondary" data-fechar-modal>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar ação</button>
+      </div>
+    </form>
+  </div>
+</div>
+<datalist id="a8-lista-pessoas"></datalist>
+<datalist id="a8-lista-setores"></datalist>
+<div id="a8-toast" class="a8-toast" role="status" hidden></div>
+{% endblock %}
+{% block scripts %}
+<script>window.A8_BASE = {{ url_for('acoes8d.api_modelo')|replace('/api/modelo', '')|tojson }};</script>
+<script src="{{ url_for('acoes8d.static', filename='comum.js') }}"></script>
+{% block scripts_a8 %}{% endblock %}
+{% endblock %}

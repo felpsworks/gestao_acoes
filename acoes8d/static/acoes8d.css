@@ -1,0 +1,1226 @@
+/* Módulo Gestão de Ações 8D — complementa o style.css do Gerenciador.
+   Todas as classes novas usam o prefixo "a8-" para não colidir com as
+   existentes. Cores e tokens vêm do :root do style.css. */
+
+/* Telas largas (A3, controle, dashboard) usam mais espaço que as 1080px padrão. */
+
+/* --- Sub-navegação do módulo --------------------------------------------- */
+.a8-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: -8px 0 22px;
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: fit-content;
+  max-width: 100%;
+}
+.a8-subnav-titulo {
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--blue-600);
+  padding: 0 12px 0 10px;
+}
+.a8-subnav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+.a8-subnav a:hover { background: var(--blue-50); color: var(--blue-700); }
+.a8-subnav a.ativo { background: var(--blue-600); color: #fff; }
+
+/* --- Utilitários ------------------------------------------------------------- */
+.a8-cabecalho-com-botao {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.a8-botoes-linha { display: flex; gap: 10px; flex-wrap: wrap; }
+.a8-mr-auto { margin-right: auto; }
+.a8-mt { margin-top: 16px; }
+.a8-mt-pequeno { margin-top: 10px; }
+.a8-pad { padding: 0 16px 14px; }
+.a8-centro { text-align: center; }
+.a8-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+th.a8-num { text-align: right; }
+.a8-ajuda { margin: 0 0 12px; font-size: 0.82rem; color: var(--ink-soft); }
+.a8-modal-alerta { margin: 16px 24px 0; }
+.a8-toolbar { padding: 14px 16px 0; margin-bottom: 8px; flex-wrap: wrap; }
+.a8-card-titulo { color: var(--blue-900); font-size: 0.95rem; }
+.a8-select-compacto {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff;
+}
+.a8-form-2col { grid-template-columns: 1fr 1fr; }
+.a8-form-2col [hidden] { display: none !important; }
+@media (max-width: 640px) { .a8-form-2col { grid-template-columns: 1fr; } }
+
+/* Toast */
+.a8-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 400;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(15, 42, 74, 0.22);
+  background: var(--ok);
+  color: #fff;
+}
+.a8-toast[hidden] { display: none; }
+.a8-toast-erro { background: var(--danger); }
+
+/* Badges de situação (farol do FRP - A3, sempre com texto) */
+.a8-badge .a8-farol {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  display: inline-block;
+}
+.badge-status.atencao .a8-farol { background: #e0a100; }
+.badge-status.cancelada { background: #eef0f3; color: var(--ink-soft); }
+
+.a8-secao { padding: 18px 20px 20px; margin-bottom: 16px; }
+.a8-secao-titulo {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  color: var(--blue-900);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.a8-secao-dica { font-weight: 400; color: var(--ink-soft); font-size: 0.85rem; }
+.a8-sub-titulo { margin: 18px 0 8px; font-size: 0.86rem; color: var(--blue-700); }
+.a8-grade { display: grid; gap: 14px; margin-bottom: 14px; }
+.a8-grade-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.a8-grade-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.a8-grade-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .a8-grade-3, .a8-grade-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+  .a8-grade-2, .a8-grade-3, .a8-grade-4 { grid-template-columns: 1fr; }
+}
+.a8-grade .field textarea, .a8-secao .field textarea { resize: vertical; }
+.a8-vinculo { margin-top: 4px; }
+
+/* Campos dentro de tabelas editáveis */
+.a8-tabela-editavel, .a8-tabela-checklist, .a8-tabela-contencao, .a8-tabela-acoes { min-width: 0; }
+.a8-tabela-editavel td, .a8-tabela-contencao td { padding: 6px 6px; vertical-align: top; }
+.a8-tabela-editavel input, .a8-tabela-editavel select, .a8-tabela-editavel textarea,
+.a8-tabela-contencao input, .a8-tabela-checklist input[type="text"], .a8-celula-input input {
+  font: inherit;
+  font-size: 0.86rem;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fff;
+  color: var(--ink);
+  resize: vertical;
+}
+.a8-tabela-editavel input:focus, .a8-tabela-editavel select:focus, .a8-tabela-editavel textarea:focus,
+.a8-tabela-contencao input:focus, .a8-tabela-checklist input:focus, .a8-celula-input input:focus {
+  outline: none;
+  border-color: var(--blue-600);
+  box-shadow: 0 0 0 3px var(--blue-50);
+}
+.a8-celula-calc { font-weight: 700; color: var(--blue-900); white-space: nowrap; padding-top: 12px !important; }
+.a8-celula-input { padding: 5px 6px !important; }
+.a8-btn-remover {
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+}
+.a8-btn-remover:hover { background: #fbecea; color: var(--danger); }
+
+/* Check list */
+.a8-checklist-progresso { margin-bottom: 12px; max-width: 420px; }
+.a8-tabela-checklist td { vertical-align: middle; }
+.a8-tabela-checklist input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--blue-600); }
+.a8-tabela-checklist tr.a8-linha-ok td:nth-child(2) { color: var(--ink-soft); }
+.a8-tabela-checklist td:nth-child(5) { min-width: 260px; }
+.a8-invalido { border-color: var(--danger) !important; background: #fff6f5 !important; }
+
+/* Contenção */
+.a8-tabela-contencao th:not(:first-child) { width: 15%; }
+.a8-rotulo-local { font-weight: 600; color: var(--ink); padding-top: 12px !important; white-space: nowrap; }
+.a8-tabela-contencao tfoot th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--blue-50);
+  color: var(--blue-900);
+  border-top: 2px solid var(--line);
+}
+
+/* Ações dentro do A3 e no controle */
+.a8-tabela-acoes td, .a8-tabela-controle td { vertical-align: middle; }
+.a8-texto-acao { min-width: 240px; max-width: 460px; white-space: normal; }
+tr.a8-linha-atrasada { background: #fff7f6; }
+tr.a8-linha-atrasada:hover { background: #fdeeec; }
+tr.a8-linha-selecionada { background: var(--blue-50); }
+
+/* Anexos */
+.a8-anexos { margin-top: 18px; }
+.a8-galeria { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; }
+.a8-anexo {
+  margin: 0;
+  width: 170px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.a8-anexo a { display: block; height: 120px; background: var(--bg); }
+.a8-anexo img { width: 100%; height: 120px; object-fit: cover; display: block; }
+.a8-anexo-arquivo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--blue-700);
+}
+.a8-anexo figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 4px 4px 4px 8px;
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+.a8-anexo figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-upload { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.a8-upload input[type="text"] {
+  font: inherit;
+  font-size: 0.86rem;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 220px;
+}
+.a8-upload input[type="file"] { font-size: 0.82rem; }
+
+#a8-assinaturas .field input + input { margin-top: 6px; }
+
+/* --- Controle de ações ----------------------------------------------------- */
+.a8-kpis-compactos { margin-bottom: 16px; }
+.a8-kpi-detalhe { margin-top: 6px; font-size: 0.76rem; color: var(--ink-soft); }
+.dash-kpi.a8-kpi-alerta { border-top-color: #fab219; }
+.a8-filtros { gap: 12px 18px; }
+.a8-filtro-busca input {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 220px;
+}
+.a8-resumo-pessoas { padding: 14px 16px; }
+.a8-resumo-pessoas-topo { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.a8-resumo-pessoas-topo .a8-ajuda { margin: 0; }
+.a8-pessoas-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.a8-pessoa-card {
+  font: inherit;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue-600);
+  border-radius: 7px;
+  background: #fff;
+  cursor: pointer;
+}
+.a8-pessoa-card:hover { background: var(--blue-50); }
+.a8-pessoa-card.a8-pessoa-atrasada { border-left-color: #d03b3b; }
+.a8-pessoa-card.a8-pessoa-selecionada { outline: 2px solid var(--blue-600); background: var(--blue-50); }
+.a8-pessoa-nome { font-weight: 700; color: var(--ink); font-size: 0.88rem; }
+.a8-pessoa-numeros { display: flex; flex-direction: column; font-size: 0.76rem; color: var(--ink-soft); }
+.a8-pessoa-atraso { color: var(--danger); font-weight: 700; }
+.a8-celula-tipo { white-space: nowrap; }
+.a8-celula-tipo small { display: block; color: var(--ink-soft); font-size: 0.74rem; white-space: normal; max-width: 180px; }
+.a8-tabela-rolagem { max-height: 70vh; overflow: auto; }
+.a8-tabela-controle { min-width: 1100px; }
+.a8-th-ordenavel { padding: 0 !important; }
+.a8-btn-ordenar {
+  font: inherit;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: inherit;
+  padding: 10px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.a8-btn-ordenar:hover { background: rgba(215, 38, 30, 0.08); }
+
+/* --- Dashboard --------------------------------------------------------------- */
+.a8-atualizado { margin-left: auto; font-size: 0.78rem; color: var(--ink-soft); }
+.a8-legenda { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: -4px 0 10px; font-size: 0.78rem; color: var(--ink-soft); }
+.a8-legenda-item { display: inline-flex; align-items: center; gap: 6px; }
+.a8-legenda-marca { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: 0 0 auto; }
+.a8-tooltip-linha { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.a8-tooltip-marca { width: 9px; height: 9px; border-radius: 2px; border: 1px solid rgba(255, 255, 255, 0.7); }
+.a8-rosca { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.a8-rosca svg { flex: 0 0 auto; }
+.dash-svg text.a8-rosca-total { font-size: 28px; font-weight: 700; fill: var(--blue-900); }
+.a8-rosca-legenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 180px; }
+.a8-rosca-legenda li { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; color: var(--ink); padding: 4px 6px; border-radius: 6px; }
+.a8-rosca-legenda li.linha-clicavel:hover { background: var(--blue-50); }
+.a8-rosca-legenda strong { margin-left: auto; font-variant-numeric: tabular-nums; }
+.dash-svg .dash-mark:focus { outline: none; }
+.dash-svg .dash-mark:focus-visible path { stroke: var(--blue-900); stroke-width: 2; }
+
+/* --- Pessoas ------------------------------------------------------------------ */
+.a8-form-linha { display: grid; grid-template-columns: 2fr 1.5fr 2fr auto; gap: 12px; align-items: end; }
+@media (max-width: 760px) { .a8-form-linha { grid-template-columns: 1fr; } }
+
+/* --- Barra do editor ---------------------------------------------------------- */
+.a8-voltar { font-size: 0.82rem; color: var(--blue-600); text-decoration: none; font-weight: 600; }
+.a8-voltar:hover { text-decoration: underline; }
+.a8-editor-botoes { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+.a8-estado-salvo { font-size: 0.8rem; color: var(--ok); font-weight: 600; }
+.a8-estado-pendente { color: #8a6d00; }
+.a8-estado-erro { color: var(--danger); }
+.a3-barra {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+.a3-barra-dica { font-size: 0.8rem; color: var(--ink-soft); }
+.a8-vinculo { margin-bottom: 12px; }
+
+/* --- Folha A3 (mesmo visual do FM-QS-025) ---------------------------------------- */
+.a3-rolagem { overflow-x: auto; padding-bottom: 6px; }
+.a3-folha {
+  --a3-bordo: #6f2b2e;
+  --a3-bege: #fbe4d0;
+  --a3-linha: #9a9a9a;
+  --a3-tinta: #111;
+  min-width: 1160px;
+  background: #fff;
+  border: 6px solid var(--a3-bordo);
+  color: var(--a3-tinta);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}
+.a3-folha input, .a3-folha select, .a3-folha textarea {
+  font: inherit;
+  color: inherit;
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 3px 5px;
+  border-radius: 0;
+  resize: none;
+  min-width: 0;
+}
+.a3-folha textarea { field-sizing: content; min-height: 1.9em; display: block; line-height: 1.3; overflow: hidden; overflow-wrap: anywhere; }
+.a3-folha input:hover, .a3-folha select:hover, .a3-folha textarea:hover { background: #fff4f3; }
+.a3-folha input:focus, .a3-folha select:focus, .a3-folha textarea:focus {
+  outline: 2px solid var(--blue-600);
+  outline-offset: -2px;
+  background: #fff;
+}
+.a3-folha ::placeholder { color: #a7a7a7; font-style: italic; }
+.a3-folha input[type="date"] { padding: 2px 3px; }
+.a3-centro { text-align: center; }
+
+.a3-topo { display: grid; grid-template-columns: 170px 1fr 240px; align-items: stretch; border-bottom: 1px solid var(--a3-linha); }
+.a3-doc {
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: var(--a3-bordo); font-size: 14px; letter-spacing: 0.04em;
+  border-right: 1px solid var(--a3-linha);
+}
+.a3-titulo { margin: 0; text-align: center; font-size: 34px; font-weight: 400; padding: 6px 10px; align-self: center; }
+.a3-numero { display: grid; grid-template-columns: 52px 1fr; border-left: 2px solid var(--a3-tinta); }
+.a3-numero-rotulo { display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; border-right: 1px solid var(--a3-linha); }
+.a3-numero-valor { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; }
+.a3-numero-valor strong { font-size: 15px; }
+.a3-numero-valor input { text-align: center; font-weight: 700; }
+
+.a3-cabecalho {
+  display: grid;
+  grid-template-columns: 110px 1.3fr 80px 1fr 80px 1fr 110px 1.6fr 70px 1.4fr;
+  border-bottom: 1px solid var(--a3-linha);
+}
+.a3-cabecalho > * { border-right: 1px solid var(--a3-linha); border-top: 1px solid var(--a3-linha); min-height: 26px; }
+.a3-cabecalho-2 { grid-template-columns: 110px 160px 110px 160px 1fr; }
+.a3-rot { background: var(--a3-bege); font-weight: 700; padding: 4px 8px; display: flex; align-items: center; }
+.a3-cel { text-align: center; }
+.a3-cel-fixa { display: flex; align-items: center; justify-content: center; padding: 3px 6px; }
+.a3-resumo-acoes { justify-content: flex-start; gap: 8px; font-weight: 700; }
+
+.a3-corpo { display: grid; grid-template-columns: 47% 53%; }
+.a3-coluna { min-width: 0; }
+.a3-coluna + .a3-coluna { border-left: 6px solid var(--a3-bordo); }
+.a3-secao {
+  background: var(--a3-bordo);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 3px 8px;
+}
+.a3-secao-sub { border-top: 1px solid #fff; }
+
+.a3-tabela { width: 100%; min-width: 0; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+.a3-tabela th, .a3-tabela td { border: 1px solid var(--a3-linha); padding: 0; vertical-align: middle; background: #fff; }
+.a3-tabela tr.a3-th th { background: var(--a3-bege); font-weight: 700; text-align: center; padding: 4px 4px; position: static; color: var(--a3-tinta); white-space: normal; }
+.a3-tabela tr.a3-th-claro th { background: #fdf2e9; }
+.a3-tabela tbody tr:hover { background: transparent; }
+.a3-rot-cel { background: var(--a3-bege) !important; font-weight: 700; padding: 3px 6px !important; text-align: left; }
+.a3-mini-rot { display: block; font-weight: 700; padding: 4px 5px 0; }
+.a3-fenomeno { vertical-align: top !important; }
+.a3-fenomeno textarea[data-campo="descricao.descricao"] { font-size: 15px; min-height: 7em; }
+.a3-texto-pequeno { font-size: 12px; }
+
+/* Ilustração */
+.a3-ilustracao { vertical-align: top !important; padding: 4px !important; height: 220px; }
+.a3-ilustracao:focus { outline: 2px dashed var(--blue-600); outline-offset: -3px; }
+.a3-ilustracao-grade { display: flex; flex-wrap: wrap; gap: 4px; }
+.a3-ilustracao-item { position: relative; margin: 0; flex: 1 1 45%; max-height: 260px; }
+.a3-ilustracao-item img { width: 100%; max-height: 260px; object-fit: contain; display: block; border: 1px solid #ddd; }
+.a3-ilustracao-excluir {
+  position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: rgba(0, 0, 0, 0.55); color: #fff; cursor: pointer; line-height: 1; display: none;
+}
+.a3-ilustracao-item:hover .a3-ilustracao-excluir { display: block; }
+.a3-ilustracao-adicionar {
+  font: inherit; font-size: 12px; color: var(--blue-600); background: none; border: 1px dashed #e8b9b6;
+  border-radius: 6px; padding: 10px; margin-top: 4px; width: 100%; cursor: pointer;
+}
+.a3-ilustracao-grade:empty + .a3-ilustracao-adicionar { min-height: 190px; }
+
+/* 3.1 Contenção Nacional: texto fixo + quadros (nº do alerta, NF, QTD) */
+/* Ações dentro da folha */
+.a3-rot-acao { font-weight: 400 !important; background: #fff !important; white-space: nowrap; }
+.a3-folha select.a3-status { text-align: center; font-weight: 700; }
+/* Selects das linhas de ação parecem células do Excel (sem seta) */
+.a3-tabela-acoes select { appearance: none; -webkit-appearance: none; text-align: center; text-align-last: center; cursor: pointer; }
+.a3-folha input[type="date"]::-webkit-calendar-picker-indicator { margin: 0; padding: 0; width: 12px; opacity: 0.45; cursor: pointer; }
+.a3-folha input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+.a3-farol-g { background: #b9ecb9 !important; color: #0b5d0b; }
+.a3-farol-y { background: #fff0a6 !important; color: #6b5300; }
+.a3-farol-r { background: #f7b9b5 !important; color: #8f1d17; }
+.a3-farol-x { background: #e6e6e6 !important; color: #555; }
+.a3-folha .a3-texto-atrasado { color: #b3261e; font-weight: 700; }
+.a3-linha-incompleta td { background: #fffbea !important; }
+.a3-col-detalhe { text-align: center; }
+.a3-btn-detalhe {
+  border: none; background: none; cursor: pointer; font-size: 16px; line-height: 1; color: #666; padding: 2px 4px; border-radius: 4px;
+}
+.a3-btn-detalhe:hover { background: var(--blue-50); color: var(--blue-700); }
+.a3-abrangencia-rot { text-align: center !important; }
+.a3-pill { padding: 1px 8px; border-radius: 999px; font-size: 12px; }
+
+/* 5 porquês */
+.a3-porques td { vertical-align: top; }
+.a3-tabela tr.a3-th th.a3-porque-titulo { font-size: 14px; padding: 10px 6px; }
+.a3-causa-raiz td textarea { font-weight: 700; font-size: 13.5px; }
+.a3-vertical { text-align: center !important; padding: 0 !important; }
+.a3-vertical span { writing-mode: vertical-rl; transform: rotate(180deg); display: inline-block; font-weight: 700; }
+
+/* Ishikawa */
+.a3-ishikawa {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 0.95fr;
+  grid-template-rows: minmax(90px, auto) auto 46px auto minmax(90px, auto);
+  column-gap: 14px;
+  padding: 8px 8px 10px;
+}
+.a3-ish-causa { border: 1px solid var(--a3-linha); display: flex; }
+.a3-folha .a3-ish-causa textarea { min-height: 86px; align-self: center; }
+.a3-ish-material { grid-column: 1; grid-row: 1; }
+.a3-ish-mao_obra { grid-column: 2; grid-row: 1; }
+.a3-ish-maquina { grid-column: 3; grid-row: 1; }
+.a3-ish-medicao { grid-column: 1; grid-row: 5; }
+.a3-ish-metodo { grid-column: 2; grid-row: 5; }
+.a3-ish-meio_ambiente { grid-column: 3; grid-row: 5; }
+.a3-ish-rotulo { border: 1px solid var(--a3-linha); text-align: center; font-weight: 700; padding: 3px; background: #fff; }
+.a3-ish-r-material { grid-column: 1; grid-row: 2; }
+.a3-ish-r-mao_obra { grid-column: 2; grid-row: 2; }
+.a3-ish-r-maquina { grid-column: 3; grid-row: 2; }
+.a3-ish-r-medicao { grid-column: 1; grid-row: 4; }
+.a3-ish-r-metodo { grid-column: 2; grid-row: 4; }
+.a3-ish-r-meio_ambiente { grid-column: 3; grid-row: 4; }
+.a3-ish-espinha { grid-column: 1 / 4; grid-row: 3; position: relative; margin-right: -14px; }
+.a3-ish-espinha::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px solid #555; }
+.a3-ish-problema { grid-column: 4; grid-row: 2 / 5; border: 1px solid var(--a3-linha); display: flex; flex-direction: column; align-self: center; }
+.a3-ish-problema-rotulo { text-align: center; font-weight: 700; border-bottom: 1px solid var(--a3-linha); padding: 3px; }
+.a3-ish-problema-texto { padding: 14px 8px; text-align: center; min-height: 60px; display: flex; align-items: center; justify-content: center; }
+
+/* Validação pelo emissor */
+.a3-validacao { vertical-align: top !important; }
+.a3-val-opcao { display: flex; align-items: center; gap: 6px; padding: 3px 6px; cursor: pointer; border-bottom: 1px solid var(--a3-linha); }
+.a3-val-opcao:last-child { border-bottom: none; }
+.a3-folha .a3-val-opcao input { width: 16px; height: 16px; accent-color: var(--a3-bordo); }
+.a3-val-aprovado span { background: #c9f0c9; color: #0b5d0b; padding: 0 4px; flex: 1; }
+.a3-val-condicional span { background: #fff3b0; color: #6b5300; padding: 0 4px; flex: 1; }
+.a3-val-reprovado span { background: #fbc8c4; color: #8f1d17; padding: 0 4px; flex: 1; }
+
+/* --- Demais folhas (recolhíveis) ------------------------------------------------- */
+.a3-anexos-titulo { margin: 26px 0 10px; font-size: 1rem; color: var(--blue-900); }
+.a3-folha-extra { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 10px; }
+.a3-folha-extra > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 16px;
+  font-weight: 700;
+  color: #fff;
+  background: #6f2b2e;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.a3-folha-extra > summary::-webkit-details-marker { display: none; }
+.a3-folha-extra > summary::before { content: "▸"; transition: transform 0.15s ease; }
+.a3-folha-extra[open] > summary { border-radius: var(--radius) var(--radius) 0 0; }
+.a3-folha-extra[open] > summary::before { transform: rotate(90deg); }
+.a3-folha-extra-corpo { padding: 16px 18px 18px; }
+.a3-resumo-pill { margin-left: auto; font-size: 0.78rem; padding: 2px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); color: var(--ink); }
+.a3-resumo-pill:empty { display: none; }
+
+/* --- Impressão: a folha A3 em paisagem -------------------------------------------- */
+@media print {
+  /* Uma única folha A3 paisagem; a escala é calculada no JS (prepararImpressao). */
+  @page { size: A3 landscape; margin: 6mm; }
+  .topbar, .a8-subnav, .a3-barra, .a8-vinculo, .a3-anexos-titulo, .a3-folha-extra,
+  .a3-btn-detalhe, .a3-ilustracao-adicionar, .a3-ilustracao-excluir, .a8-toast, #a8-alerta-editor,
+  .link-preset, .a8-upload, .a8-btn-remover, .a3i-overlay, .a8-modal-acao, .modal-overlay { display: none !important; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
+  .page { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  .a3-rolagem { overflow: visible; padding: 0 !important; }
+  .a3-folha { break-inside: avoid; page-break-inside: avoid; }
+  .a3-folha ::placeholder { color: transparent; }
+  .a3-folha input[type="date"]::-webkit-calendar-picker-indicator { display: none; }
+  .a3-folha select { appearance: none; -webkit-appearance: none; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+
+/* 3.2 Exportação: caixinha "Aplicável" e linhas "Não se aplica" */
+.a3-secao-check { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.a3-check-aplicavel {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 700;
+  background: #fff; color: var(--a3-bordo); padding: 0 8px; border-radius: 3px;
+}
+.a3-folha .a3-check-aplicavel input { width: 15px; height: 15px; padding: 0; accent-color: var(--a3-bordo); cursor: pointer; }
+.a3-linha-na td { background: #f3f3f3 !important; }
+.a3-desc-na { padding: 4px 6px !important; color: #777; }
+.a3-nao-aplica { text-align: center; color: #777; font-style: italic; font-size: 12px; padding: 4px 2px !important; }
+
+/* Barra do editor: status e prazo limite do A3 (fora do documento) */
+.a3-barra-campo { display: inline-flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--ink-soft); font-weight: 600; }
+.a3-barra-campo select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); }
+.a3-barra-campo strong { color: var(--ink); }
+.a3-barra .a3-resumo-acoes { display: inline-flex; gap: 6px; align-items: center; font-size: 0.8rem; font-weight: 600; color: var(--ink-soft); }
+
+/* Campos convertidos em caixa de texto dentro da folha */
+.a3-cabecalho textarea, .a3-tabela td > textarea.a3-centro { text-align: center; }
+.a3-cabecalho textarea { align-self: center; }
+.a3-numero-valor textarea { text-align: center; font-weight: 700; }
+
+/* Seção 5: incluir / excluir linhas */
+.a3-col-detalhe { white-space: nowrap; }
+.a3-btn-remover-linha {
+  border: none; background: none; cursor: pointer; font-size: 16px; line-height: 1; color: #999; padding: 2px 4px; border-radius: 4px;
+}
+.a3-btn-remover-linha:hover { background: #fbecea; color: var(--danger); }
+.a3-linha-adicionar td { padding: 0 !important; border-top: none !important; }
+.a3-btn-adicionar {
+  font: inherit; font-size: 12px; color: var(--blue-600); background: none; border: none; cursor: pointer;
+  padding: 2px 8px; width: 100%; text-align: left; opacity: 0.75;
+}
+.a3-btn-adicionar:hover { opacity: 1; background: var(--blue-50); }
+@media print {
+  .a3-linha-adicionar, .a3-btn-remover-linha { display: none !important; }
+}
+/* Sem a setinha do datalist nos nomes: o texto usa a largura toda do quadro */
+.a3-folha input[list]::-webkit-calendar-picker-indicator { display: none !important; }
+
+/* Seção 5: colunas compactas para a Descrição ganhar espaço */
+.a3-tabela-sec5 tr.a3-th th { font-size: 12px; padding: 4px 2px; }
+.a3-tabela-sec5 .a3-rot-acao { font-size: 12px; padding: 3px 4px !important; }
+.a3-folha .a3-tabela-sec5 input[type="date"] { font-size: 11.5px; padding: 2px 1px; letter-spacing: -0.2px; }
+.a3-folha .a3-tabela-sec5 input[type="date"]::-webkit-calendar-picker-indicator { width: 10px; margin-left: -2px; }
+.a3-folha .a3-tabela-sec5 select { font-size: 12px; padding: 3px 1px; }
+.a3-tabela-sec5 .a3-btn-detalhe, .a3-tabela-sec5 .a3-btn-remover-linha { padding: 2px 2px; font-size: 15px; }
+
+/* Status G/Y (letra centralizada, cor do farol) */
+.a3-folha select.a3-status { font-weight: 700; font-size: 13px; padding: 3px 0; text-align: center; text-align-last: center; }
+
+/* Botões das linhas (⋯ e lixeira) do lado de fora da folha, na coluna da direita */
+.a3-rolagem { padding-right: 100px; padding-left: 44px; }
+.a3-com-ferramentas { position: relative; }
+.a3-ferramentas-fora {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.a3-ferramentas-fora .a3-btn-detalhe { font-size: 16px; padding: 3px 5px; }
+.a3-btn-lixeira {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #9aa1aa;
+  cursor: pointer;
+}
+.a3-btn-lixeira:hover { background: #fbecea; color: var(--danger); }
+.a3-btn-lixeira:focus-visible { outline: 2px solid var(--blue-600); outline-offset: 1px; }
+@media print {
+  .a3-ferramentas-fora { display: none !important; }
+  .a3-rolagem { padding-right: 0; }
+}
+/* Cabeçalho "Status:" nas colunas estreitas */
+.a3-tabela tr.a3-th th[title^="G ="] { font-size: 11px; padding: 4px 0; cursor: help; }
+.a3-tabela-sec5 tr.a3-th th[title="Abrangência"] { font-size: 11px; padding: 4px 0; }
+#a3-retro .a3-rot-acao { white-space: normal; }
+.a3-folha .a3-tabela-acoes input[type="date"] { font-size: 11.5px; padding: 2px 1px; letter-spacing: -0.2px; }
+.a3-folha .a3-tabela-acoes input[type="date"]::-webkit-calendar-picker-indicator { width: 10px; margin-left: -2px; }
+
+/* 6 · Retroalimentação: coluna N/A */
+.a3-col-na { text-align: center; }
+.a3-folha .a3-col-na input[type="checkbox"] { width: 16px; height: 16px; padding: 0; accent-color: var(--a3-bordo); cursor: pointer; vertical-align: middle; }
+#a3-retro .a3-linha-na .a3-desc-na { font-style: italic; }
+
+/* --- Quadro Ilustração ---------------------------------------------------------- */
+.a3-ilustracao { position: relative; cursor: pointer; }
+.a3-ilustracao:hover { background: #fff4f3 !important; }
+.a3-ilustracao-img { display: block; width: 100%; max-height: 300px; object-fit: contain; }
+.a3-ilustracao-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 4px; }
+.a3-ilustracao-vazia {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 190px; border: 1px dashed #e8b9b6; border-radius: 6px; color: var(--blue-600); font-size: 12px; text-align: center;
+}
+.a3-ilustracao-vazia strong { font-size: 13px; }
+.a3-ilustracao-vazia span { color: var(--ink-soft); }
+.a3-ilustracao-editar {
+  position: absolute; top: 6px; right: 6px; font-size: 11px; font-weight: 700; color: #fff;
+  background: rgba(15, 42, 74, 0.75); padding: 2px 8px; border-radius: 999px; opacity: 0; transition: opacity 0.15s ease;
+}
+.a3-ilustracao:hover .a3-ilustracao-editar, .a3-ilustracao:focus .a3-ilustracao-editar { opacity: 1; }
+@media print { .a3-ilustracao-editar, .a3-ilustracao-vazia { display: none !important; } }
+
+/* --- Editor de ilustração (janela) ----------------------------------------------- */
+body.a3i-aberto { overflow: hidden; }
+.a3i-overlay {
+  position: fixed; inset: 0; z-index: 500; background: rgba(10, 20, 35, 0.78);
+  display: flex; align-items: center; justify-content: center; padding: 18px;
+}
+.a3i-overlay[hidden] { display: none; }
+.a3i-janela {
+  background: #fff; border-radius: 10px; width: min(1320px, 100%); max-height: 100%;
+  display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+.a3i-barra {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 10px 14px;
+  border-bottom: 1px solid var(--line); background: #f7f9fc;
+}
+.a3i-grupo { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.a3i-grupo-fim { margin-left: auto; }
+.a3i-ferramenta {
+  display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 0.82rem; font-weight: 600;
+  padding: 6px 10px; border: 1px solid var(--line); border-radius: 7px; background: #fff; color: var(--ink); cursor: pointer;
+}
+.a3i-ferramenta:hover { border-color: var(--blue-600); }
+.a3i-ferramenta.ativo { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
+.a3i-cores { display: flex; gap: 4px; }
+.a3i-cor { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #cfd6df; cursor: pointer; padding: 0; }
+.a3i-cor.ativo { outline: 3px solid var(--blue-600); outline-offset: 1px; }
+.a3i-select { font: inherit; font-size: 0.82rem; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.a3i-acao {
+  font: inherit; font-size: 0.82rem; font-weight: 600; padding: 6px 12px; border: 1px solid var(--line);
+  border-radius: 7px; background: #fff; color: var(--ink); cursor: pointer;
+}
+.a3i-acao:hover { border-color: var(--blue-600); }
+.a3i-perigo { color: var(--danger); }
+.a3i-perigo:hover { background: #fbecea; border-color: var(--danger); }
+.a3i-primario { background: var(--blue-600); border-color: var(--blue-600); color: #fff; }
+.a3i-primario:hover { filter: brightness(0.95); border-color: var(--blue-600); }
+.a3i-area { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 12px; background: #e9edf2; overflow: auto; }
+.a3i-canvas {
+  display: block; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 200px); aspect-ratio: 3 / 2; touch-action: none;
+}
+.a3i-canvas:focus { outline: none; }
+.a3i-dica { padding: 6px 14px 10px; font-size: 0.78rem; color: var(--ink-soft); }
+
+/* 3.1: lápis para editar o texto padrão (fora da folha, à esquerda da linha) */
+.a3-com-lapis { position: relative; }
+.a3-btn-lapis {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #9aa1aa;
+  cursor: pointer;
+}
+.a3-btn-lapis:hover { background: var(--blue-50); color: var(--blue-700); }
+.a3-btn-lapis:focus-visible { outline: 2px solid var(--blue-600); outline-offset: 1px; }
+.a3-texto-alterado { color: #0f2a4a; text-decoration: underline dotted #9aa1aa; text-underline-offset: 3px; }
+.a3-folha input.a3-desc-edicao { width: calc(100% - 4px); border: 1px solid var(--blue-600); background: #fff; padding: 2px 4px; }
+@media print {
+  .a3-btn-lapis { display: none !important; }
+  .a3-rolagem { padding-left: 0; }
+  .a3-texto-alterado { text-decoration: none; }
+}
+
+/* 3.1: lixeira das linhas incluídas, fora da folha à esquerda (mesmo lugar do lápis) */
+.a3-btn-lixeira.a3-fora-esquerda { position: absolute; right: calc(100% + 14px); top: 50%; transform: translateY(-50%); }
+@media print { .a3-fora-esquerda { display: none !important; } }
+
+/* 3.1: descrição fixa com quadros (nº do alerta, NF, QTD) em "etiquetas" alinhadas */
+.a3-desc-fixa { padding: 5px 8px !important; }
+.a3-desc-linha { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 4px; line-height: 1.35; }
+.a3-campo {
+  display: inline-flex;
+  align-items: stretch;
+  height: 22px;
+  border: 1px solid #d9c3ad;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fffaf4;
+}
+.a3-campo:has(input:placeholder-shown) { border-style: dashed; background: #fff; }
+.a3-campo:focus-within { border-color: var(--blue-600); box-shadow: 0 0 0 2px var(--blue-50); }
+.a3-campo:has(.a8-invalido) { border-color: var(--danger); background: #fff6f5; }
+.a3-campo-rot {
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  background: var(--a3-bege);
+  border-right: 1px solid #d9c3ad;
+  font-size: 11px;
+  font-weight: 700;
+}
+.a3-folha input.a3-desc-campo {
+  field-sizing: content;
+  width: auto;
+  min-width: 70px;
+  max-width: 150px;
+  height: 100%;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 600;
+  outline: none;
+}
+.a3-folha input.a3-desc-campo:hover, .a3-folha input.a3-desc-campo:focus { background: transparent; outline: none; }
+.a3-folha input.a3-desc-campo::placeholder { font-weight: 400; font-size: 11.5px; }
+@media print { .a3-campo:has(input:placeholder-shown) { border-style: solid; } }
+
+/* Lápis junto dos botões de fora (coluna da direita: seção 7) */
+.a3-ferramentas-fora .a3-btn-lapis { position: static; transform: none; }
+
+/* Durante a preparação da impressão (medição da altura), esconde o que não sai no papel */
+body.a3-imprimindo .a3-linha-adicionar, body.a3-imprimindo .a3-ilustracao-editar,
+body.a3-imprimindo .a3-ilustracao-vazia, body.a3-imprimindo .a3-ferramentas-fora,
+body.a3-imprimindo .a3-btn-lapis, body.a3-imprimindo .a3-fora-esquerda { display: none !important; }
+@media print { .a3-folha input.a3-data-vazia { color: transparent !important; } }
+/* Impressão: folha centralizada na página */
+@media print { .a3-rolagem { display: flex; justify-content: center; } }
+.a3-rolagem + .a3-folha-extra, .a3-folha-extra[data-folha="evidencias"] { margin-top: 20px; }
+
+/* --- Evidências das ações (tela) ---------------------------------------------------- */
+.a8-tabela-evidencias { min-width: 900px; }
+.a8-tabela-evidencias td { vertical-align: middle; }
+.a8-evid-secao { white-space: nowrap; font-size: 0.8rem; color: var(--ink-soft); }
+.a8-evid-status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 700; background: #eef0f3; white-space: nowrap; }
+.a8-evid-celula { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.a8-evid-miniatura { width: 96px; height: 64px; object-fit: cover; border: 1px solid var(--line); border-radius: 5px; cursor: pointer; }
+.a8-evid-miniatura:hover { outline: 2px solid var(--blue-600); }
+
+/* Editor de imagem: título (ex.: qual ação) */
+.a3i-rodape { display: flex; align-items: baseline; gap: 14px; padding: 6px 14px 10px; flex-wrap: wrap; }
+.a3i-titulo { font-size: 0.85rem; color: var(--blue-900); }
+.a3i-titulo:empty { display: none; }
+.a3i-rodape .a3i-dica { padding: 0; }
+
+/* --- Evidências: páginas de impressão (uma ação por folha A3) ----------------------- */
+.a3-impressao-evidencias { display: none; }
+@media print {
+  .a3-impressao-evidencias { display: block; }
+  .a3-ev-pagina {
+    break-before: page;
+    page-break-before: always;
+    height: 283mm;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border: 5px solid #6f2b2e;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #111;
+    overflow: hidden;
+  }
+  .a3-ev-topo { display: grid; grid-template-columns: 50mm 1fr 70mm; border-bottom: 1px solid #9a9a9a; }
+  .a3-ev-doc { display: flex; align-items: center; justify-content: center; font-weight: 700; color: #6f2b2e; border-right: 1px solid #9a9a9a; }
+  .a3-ev-titulo { margin: 0; text-align: center; font-size: 26pt; font-weight: 400; padding: 3mm; }
+  .a3-ev-numero { display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 2px solid #111; font-size: 12pt; }
+  .a3-ev-numero strong { font-size: 15pt; }
+  .a3-ev-dados { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 5px solid #6f2b2e; }
+  .a3-ev-campo { display: flex; flex-direction: column; border-right: 1px solid #9a9a9a; border-top: 1px solid #9a9a9a; }
+  .a3-ev-largo { grid-column: span 3; }
+  .a3-ev-rot { background: #fbe4d0; font-weight: 700; font-size: 10pt; padding: 1.5mm 3mm; }
+  .a3-ev-val { padding: 2mm 3mm; font-size: 12pt; min-height: 9mm; }
+  .a3-ev-status .a3-ev-val { font-weight: 700; }
+  .a3-ev-status.a3-farol-g .a3-ev-val { background: #b9ecb9; }
+  .a3-ev-status.a3-farol-y .a3-ev-val { background: #fff0a6; }
+  .a3-ev-status.a3-farol-r .a3-ev-val { background: #f7b9b5; }
+  .a3-ev-status, .a3-ev-status.a3-farol-g, .a3-ev-status.a3-farol-y, .a3-ev-status.a3-farol-r { background: none !important; }
+  .a3-ev-imagem { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 5mm; }
+  .a3-ev-imagem img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  .a3-ev-sem { color: #888; font-size: 14pt; font-style: italic; }
+}
+
+/* Evidências: coluna "Imprimir" */
+.a8-evid-col-imprimir { width: 92px; text-align: center; }
+.a8-evid-imprimir { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.a8-tabela-evidencias input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--blue-600); cursor: pointer; }
+
+/* Evidência: link do PDF original */
+.a8-evid-pdf {
+  display: inline-flex; align-items: center; max-width: 180px; overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; font-size: 0.76rem; font-weight: 700; color: #b3261e; background: #fbecea;
+  border: 1px solid #f1c3bd; border-radius: 5px; padding: 3px 8px; text-decoration: none;
+}
+.a8-evid-pdf:hover { background: #f8d9d5; }
+.a8-evid-celula { flex-wrap: wrap; white-space: normal; }
+@media print { .a3-ev-titulo-menor { font-size: 18pt; } }
+
+/* Logo Wetzel no canto do formulário A3 e nas páginas de evidência */
+.a3-doc { flex-direction: column; gap: 3px; padding: 6px; }
+.a3-doc img { width: 118px; max-width: 90%; height: auto; display: block; }
+.a3-doc span { font-size: 10px; letter-spacing: 0.06em; }
+@media print {
+  .a3-ev-doc { flex-direction: column; gap: 1mm; padding: 2mm; }
+  .a3-ev-doc img { width: 38mm; height: auto; }
+  .a3-ev-doc span { font-size: 8pt; }
+}
+
+/* Sub-navegação do módulo com as cores Wetzel */
+.a8-subnav a.ativo { background: #d7261e; color: #fff; box-shadow: inset 0 -3px 0 #1a1a1a; }
+.a8-subnav a:hover { color: #d7261e; }
+
+/* Abas do módulo: todas do mesmo tamanho */
+.a8-subnav { display: grid; grid-template-columns: repeat(4, 150px); gap: 4px; }
+.a8-subnav a { text-align: center; padding: 8px 6px; white-space: nowrap; }
+@media (max-width: 680px) { .a8-subnav { grid-template-columns: repeat(2, 1fr); width: 100%; } }
+
+/* --- Visão Geral: filtros --------------------------------------------------------- */
+.a8-d-filtros { gap: 12px 18px; }
+.a8-d-busca input {
+  font: inherit; font-size: 0.88rem; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px; width: 250px;
+}
+.a8-d-busca input:focus { outline: none; border-color: var(--blue-600); box-shadow: 0 0 0 3px var(--blue-50); }
+#a8-d-limpar:disabled { opacity: 0.45; cursor: default; }
+.a8-filtros-ativos {
+  flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px;
+  padding-top: 10px; border-top: 1px dashed var(--line);
+}
+.a8-filtros-ativos[hidden] { display: none; }
+.a8-filtros-ativos-rotulo { font-size: 0.78rem; font-weight: 700; color: var(--ink-soft); }
+.a8-etiqueta-filtro {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px;
+  background: var(--blue-50); color: var(--blue-700); font-size: 0.8rem; font-weight: 700; border: 1px solid #f3c2bf;
+}
+.a8-etiqueta-remover {
+  border: none; background: none; cursor: pointer; color: inherit; font-size: 1rem; line-height: 1;
+  width: 20px; height: 20px; border-radius: 50%;
+}
+.a8-etiqueta-remover:hover { background: rgba(0, 0, 0, 0.08); }
+
+/* --- Impressão das abas (Visão Geral, Formulário A3, Gestão de Ações) ------------- */
+.a8-cabecalho-impressao { display: none; }
+@media print {
+  body:not(:has(#a8-editor)) .a8-cabecalho-impressao {
+    display: flex; align-items: center; gap: 6mm; padding: 0 0 4mm; margin-bottom: 5mm; border-bottom: 3px solid #d7261e;
+  }
+  .a8-cabecalho-impressao img { width: 36mm; height: auto; }
+  .a8-ci-titulo { display: block; font-size: 20pt; font-weight: 800; color: #1a1a1a; }
+  .a8-ci-sub { font-size: 9pt; color: #5f5f5f; }
+  .a8-ci-info { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 1mm; font-size: 9pt; color: #1a1a1a; text-align: right; max-width: 55%; }
+
+  /* fora do papel: controles e navegação */
+  body:not(:has(#a8-editor)) .page-header,
+  .dash-filtros, .a8-filtros, .a8-btn-imprimir-pagina, .a8-botoes-linha, .a8-toolbar input, .a8-toolbar select,
+  .a8-atualizado, .a8-filtros-ativos, .link-preset, .a8-resumo-pessoas .a8-ajuda { display: none !important; }
+
+  /* listas inteiras, sem rolagem, cabeçalho repetido em cada página */
+  .a8-tabela-rolagem, .table-wrap { max-height: none !important; overflow: visible !important; }
+  body:not(:has(#a8-editor)) table { min-width: 0 !important; font-size: 9pt; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  thead th { position: static; }
+
+  /* cartões e gráficos inteiros, sem quebrar no meio */
+  .card, .dash-card, .dash-kpi, .a8-pessoa-card { box-shadow: none !important; break-inside: avoid; }
+  .dash-grid { grid-template-columns: 1fr 1fr !important; gap: 4mm; }
+  .dash-kpis { grid-template-columns: repeat(6, 1fr) !important; gap: 3mm; margin-bottom: 5mm; }
+  .a8-kpis-compactos { grid-template-columns: repeat(5, 1fr) !important; }
+  .dash-kpi-clicavel, .linha-clicavel { cursor: default; }
+  .a8-pessoas-grade { grid-template-columns: repeat(6, 1fr); }
+  a { color: inherit; text-decoration: none; }
+}
+@media print { .card:has(table) { break-inside: auto; } }
+
+/* --- Etapas do 8D (reconhecidas pelo A3) -------------------------------------------- */
+.a3-etapas { padding: 10px 14px 12px; margin-bottom: 12px; }
+.a3-etapas-titulo { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; font-size: 0.86rem; }
+.a3-etapas-resumo { font-weight: 700; color: var(--ink-soft); }
+.a3-etapas-resumo.atrasada { color: var(--danger); }
+.a3-etapas-lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; }
+.a3-etapa {
+  position: relative; display: flex; flex-direction: column; gap: 2px; padding: 6px 6px 6px 8px;
+  border-radius: 6px; border: 1px solid var(--line); background: #fff; min-width: 0;
+  border-top: 4px solid #cfcfcf;
+}
+.a3-etapa-marca { position: absolute; top: 4px; right: 6px; font-size: 0.8rem; font-weight: 800; }
+.a3-etapa-nome { font-size: 0.76rem; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+.a3-etapa-data { font-size: 0.68rem; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.a3-etapa.feita { border-top-color: #0ca30c; background: #f3fbf3; }
+.a3-etapa.feita .a3-etapa-marca { color: #0a7d0a; }
+.a3-etapa.atual { border-top-color: #fab219; background: #fffbea; box-shadow: 0 0 0 2px #fab219 inset; }
+.a3-etapa.atual.atrasada { border-top-color: #d7261e; background: #fff4f3; box-shadow: 0 0 0 2px #d7261e inset; }
+.a3-etapa.atual.atrasada .a3-etapa-data, .a3-etapa.vencida .a3-etapa-data { color: var(--danger); font-weight: 700; }
+.a3-etapa.na { opacity: 0.55; border-style: dashed; }
+@media (max-width: 1100px) { .a3-etapas-lista { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media print { .a3-etapas { display: none !important; } }
+
+/* Lista do Formulário A3: etapa atual */
+.a8-etapa-badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 0.76rem; font-weight: 700; background: #eef0f3; color: var(--ink-soft); white-space: nowrap; }
+.a8-etapa-badge.atual { background: #fff4d6; color: #7a5b00; }
+.a8-etapa-badge.atrasada { background: #fdeceb; color: var(--danger); }
+.a8-etapa-badge.feita { background: #e9f7e9; color: #0a7d0a; }
+.a8-etiqueta-filtro[hidden] { display: none; }
+
+/* Seção 8: aprovação bloqueada enquanto houver etapas pendentes */
+.a3-val-bloqueado { opacity: 0.55; }
+.a3-val-pendencias { padding: 4px 6px 6px; font-size: 11px; line-height: 1.35; color: #8f1d17; border-top: 1px solid var(--a3-linha); }
+.a3-val-pendencias strong { display: block; }
+@media print { .a3-val-pendencias { display: none !important; } }
+
+/* Funil "Quem mais faz ações": valor em branco dentro da faixa */
+.dash-funil-valor { fill: #fff !important; font-weight: 700; }
+
+/* Mapa dos setores (Visão Geral) */
+.a8-mapa-area { max-width: 680px; margin: 0 auto; }
+.a8-mapa-setor path { stroke: #fff; stroke-width: 2; stroke-linejoin: round; transition: opacity .15s; }
+.a8-mapa-setor:hover path, .a8-mapa-setor:focus path { stroke-width: 4; }
+.a8-mapa-setor.selecionado path { stroke: #1a1a1a; stroke-width: 3; }
+.a8-mapa-setor.apagado path { opacity: .5; }
+.a8-mapa-setor:focus { outline: none; }
+.a8-mapa-setor text { pointer-events: none; }
+.a8-mapa-pct { font-weight: 700; }
+.a8-mapa-legenda { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--text-muted, #666); margin: 4px 0 2px; }
+.a8-mapa-legenda span { display: inline-flex; align-items: center; gap: 5px; }
+.a8-mapa-legenda i { width: 14px; height: 10px; border-radius: 2px; display: inline-block; }
+.a8-mapa-fora { font-size: 12.5px; color: #8f1d17; margin-top: 4px; }
+.a8-mapa-fora[hidden], .a8-mapa-painel[hidden] { display: none; }
+.a8-link-botao { background: none; border: 0; padding: 0; color: #b3261e; text-decoration: underline; cursor: pointer; font: inherit; }
+.a8-mapa-painel { border-top: 1px solid #e5e5e5; margin-top: 10px; padding-top: 10px; }
+.a8-mapa-painel-topo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+.a8-mapa-painel-topo strong { font-size: 16px; }
+.a8-mapa-painel-topo span { font-size: 13px; color: #555; }
+.a8-mapa-painel-topo .a8-espaco { flex: 1; }
+
+/* Visão Geral: filtros principais (1ª linha) + demais filtros (2ª linha) */
+.a8-d-filtros { flex-direction: column; align-items: stretch !important; }
+.a8-d-linha-filtros { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; }
+.a8-d-principais .a8-atualizado { margin-left: auto; }
+.a8-d-principais .dash-filtro-rotulo { font-weight: 600; color: #1a1a1a; }
+.a8-d-periodo { display: inline-flex; align-items: center; gap: 6px; }
+.a8-d-periodo input[type="date"] { height: 32px; padding: 0 8px; border: 1px solid var(--line, #d9d9d9); border-radius: 6px; font: inherit; font-size: 13px; }
+.a8-filtros-inline { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.a8-filtros-inline[hidden], #a8-f-extras[hidden] { display: none; }
+
+/* Gestão de Ações: ID Wetzel + peça e defeito */
+.a8-celula-id { min-width: 150px; max-width: 220px; }
+.a8-id-detalhe { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-top: 2px; font-size: 11.5px; line-height: 1.3; color: #555; white-space: normal; }
+.a8-id-detalhe b { color: #1a1a1a; font-weight: 600; }
+
+/* Gestão de Ações: tabela cabe na largura da tela (sem rolagem lateral) */
+.a8-tabela-controle#a8-tabela-acoes { min-width: 0; table-layout: fixed; width: 100%; font-size: 0.8rem; }
+#a8-tabela-acoes thead th .a8-btn-ordenar { white-space: normal; padding: 8px 6px; line-height: 1.2; }
+#a8-tabela-acoes tbody td { padding: 7px 6px; overflow-wrap: break-word; }
+#a8-tabela-acoes td.a8-data { white-space: nowrap; overflow-wrap: normal; }
+#a8-tabela-acoes .a8-texto-acao { min-width: 0; max-width: none; }
+#a8-tabela-acoes .a8-celula-id { min-width: 0; max-width: none; }
+#a8-tabela-acoes .a8-celula-tipo { white-space: normal; }
+#a8-tabela-acoes .a8-celula-tipo small { max-width: none; }
+#a8-tabela-acoes .a8-num { white-space: normal; }
+#a8-tabela-acoes .a8-badge { white-space: normal; font-size: 0.72rem; padding: 2px 6px; line-height: 1.25; }
+.a8-tabela-rolagem:has(#a8-tabela-acoes) { overflow-x: hidden; }
+@media (max-width: 1280px) {
+  .a8-tabela-controle#a8-tabela-acoes { font-size: 0.72rem; }
+  #a8-tabela-acoes tbody td { padding: 6px 3px; }
+  #a8-tabela-acoes thead th .a8-btn-ordenar { padding: 6px 3px; }
+  #a8-tabela-acoes .a8-badge { font-size: 0.66rem; padding: 2px 4px; }
+}
+
+/* Card selecionado (filtro de situação ativo) */
+.dash-kpi.a8-kpi-ativo { outline: 2px solid #d7261e; outline-offset: -2px; background: #fff5f4; }
+#a8-kpis-acoes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 640px) { #a8-kpis-acoes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Gestão de Ações: botões de área (filtro por setor) */
+.a8-areas { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin: 4px 0 14px; }
+.a8-area {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 11px 14px; border: 1px solid #d9d9d9; border-radius: 10px; background: #fff;
+  font: inherit; font-weight: 700; font-size: 0.92rem; color: #1a1a1a; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.a8-area:hover { border-color: #d7261e; background: #fff5f4; }
+.a8-area:focus-visible { outline: 2px solid #d7261e; outline-offset: 2px; }
+.a8-area-qtd { min-width: 26px; padding: 1px 8px; border-radius: 999px; background: #f1f1f1; color: #444; font-size: 0.8rem; text-align: center; }
+.a8-area.ativa { background: #d7261e; border-color: #d7261e; color: #fff; }
+.a8-area.ativa .a8-area-qtd { background: rgba(255, 255, 255, 0.25); color: #fff; }
+@media (max-width: 900px) { .a8-areas { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.a8-filtros-recebidos { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.a8-filtros-recebidos:not(:has(> :not([hidden]))) { display: none; }
+#a8-f-outros[hidden] { display: none; }
+@media print { .a8-areas { display: none !important; } }
+
+/* Coluna ID Wetzel: ID / PN / Definição do problema, uma informação por linha */
+.a8-id-linha { font-size: 0.76rem; line-height: 1.3; color: #444; }
+.a8-id-linha + .a8-id-linha { margin-top: 2px; }
+.a8-id-linha .id-mrhb { font-size: 0.82rem; }
+.a8-id-rotulo { font-weight: 700; color: #1a1a1a; }
+.a8-id-problema { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Gestão de Ações: barra de filtros (abaixo dos botões de área) */
+.a8-filtros-acoes { gap: 12px 18px; margin-bottom: 12px; }
+.a8-filtros-acoes .dash-filtro-rotulo { font-weight: 600; color: #1a1a1a; }
+.a8-filtros-acoes #a8-f-id { height: 32px; padding: 0 10px; border: 1px solid var(--line, #d9d9d9); border-radius: 6px; font: inherit; font-size: 13px; min-width: 190px; }
+.a8-filtros-acoes #a8-f-limpar { margin-left: auto; }
+
+/* Evolução mensal em linhas */
+.a8-linhas .a8-linhas-guia { stroke: #9a9a9a; stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+.a8-linhas circle { pointer-events: none; }
+
+/* Número dentro das barras empilhadas */
+.dash-svg text.a8-rotulo-dentro { fill: #fff; font-weight: 700; font-size: 11px; pointer-events: none; }
+
+/* Filtro "Analista responsável" em botões */
+.a8-botoes-filtro { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.a8-botao-filtro {
+  padding: 6px 14px; border: 1px solid #d9d9d9; border-radius: 999px; background: #fff;
+  font: inherit; font-size: 0.85rem; font-weight: 600; color: #1a1a1a; cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.a8-botao-filtro:hover { border-color: #d7261e; background: #fff5f4; }
+.a8-botao-filtro:focus-visible { outline: 2px solid #d7261e; outline-offset: 2px; }
+.a8-botao-filtro.ativo { background: #d7261e; border-color: #d7261e; color: #fff; }
+select[hidden] { display: none !important; }
+
+/* Visão Geral: organizar gráficos (arrastar e largura) */
+.a8-aviso-organizar { margin: 0 0 12px; padding: 10px 14px; border: 1px dashed #d7261e; border-radius: 8px; background: #fff5f4; color: #5a1410; font-size: 0.88rem; }
+.a8-aviso-organizar[hidden] { display: none; }
+body.a8-organizando .a8-grupo-graficos > .dash-card { position: relative; outline: 2px dashed #d9d9d9; outline-offset: -2px; cursor: grab; transition: outline-color .12s, opacity .12s; }
+body.a8-organizando .a8-grupo-graficos > .dash-card:hover { outline-color: #d7261e; }
+body.a8-organizando .a8-grupo-graficos > .dash-card.a8-arrastando { opacity: 0.45; outline-color: #d7261e; cursor: grabbing; }
+body.a8-organizando .a8-grupo-graficos > .dash-card * { pointer-events: none; }
+body.a8-organizando .a8-grupo-graficos > .dash-card .a8-quadro-ferramentas, body.a8-organizando .a8-grupo-graficos > .dash-card .a8-quadro-ferramentas * { pointer-events: auto; }
+.a8-quadro-ferramentas { position: absolute; top: 8px; right: 10px; display: flex; gap: 6px; align-items: center; z-index: 2; }
+.a8-quadro-alca { font-size: 18px; color: #888; line-height: 1; padding: 2px 4px; }
+.a8-quadro-largura { border: 1px solid #d9d9d9; background: #fff; border-radius: 6px; padding: 2px 8px; font: inherit; font-weight: 700; cursor: pointer; }
+.a8-quadro-largura:hover { border-color: #d7261e; color: #d7261e; }
+@media print { .a8-quadro-ferramentas, #a8-organizar, #a8-layout-padrao, .a8-aviso-organizar { display: none !important; } }
+#a8-layout-padrao[hidden], #a8-organizar[hidden] { display: none !important; }
+
+
+/* Visão Geral: painéis "Indicadores de A3" (esquerda) e "Indicadores de ações" (direita) */
+.a8-paineis { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; margin-bottom: 18px; }
+.a8-painel { border-radius: 14px; border: 1.5px solid; min-width: 0; }
+.a8-painel-cabecalho { border-radius: 12px 12px 0 0; }
+.a8-painel-cabecalho { padding: 10px 16px; color: #fff; font-weight: 800; font-size: 0.95rem; letter-spacing: 0.02em; }
+.a8-painel-corpo { padding: 14px; display: grid; gap: 14px; }
+.a8-painel-corpo > .dash-card { margin: 0; }
+.a8-painel-a3 { border-color: #3d3d3d; background: #f3f3f3; }
+.a8-painel-a3 .a8-painel-cabecalho { background: #3d3d3d; }
+.a8-painel-acoes { border-color: #d7261e; background: #fdf3f2; }
+.a8-painel-acoes .a8-painel-cabecalho { background: #d7261e; }
+.a8-painel-largo .dash-grid.a8-painel-corpo { grid-template-columns: 1fr 1fr; }
+@media (max-width: 860px) {
+  .a8-paineis { grid-template-columns: 1fr; }
+  .a8-painel-largo .dash-grid.a8-painel-corpo { grid-template-columns: 1fr; }
+}
+@media print {
+  .a8-paineis { gap: 4mm; margin-bottom: 4mm; }
+  .a8-painel { -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* sem break-inside: o painel é maior que uma folha */
+}
+
+/* Organizar: painel vazio continua recebendo gráficos */
+body.a8-organizando .a8-grupo-graficos { min-height: 90px; outline: 2px dashed transparent; outline-offset: -6px; border-radius: 10px; }
+body.a8-organizando .a8-grupo-graficos:empty { outline-color: #c8c8c8; }
+/* Lista "Status atual dos A3" */
+.a8-lista-a3-rolagem { max-height: 300px; overflow: auto; }
+.a8-lista-a3 { min-width: 0 !important; table-layout: fixed; width: 100%; font-size: 0.8rem; }
+.a8-lista-a3 th:nth-child(1) { width: 24%; } .a8-lista-a3 th:nth-child(2) { width: 11%; }
+.a8-lista-a3 th:nth-child(3) { width: 16%; } .a8-lista-a3 th:nth-child(5) { width: 22%; }
+.a8-lista-a3 td { padding: 7px 8px; overflow-wrap: break-word; }
+.a8-lista-a3 .a8-texto-acao { min-width: 0; max-width: none; }
+.a8-etapa-badge.atrasada { background: #fdecea; color: #b3261e; border-color: #f3b4ae; }
+
+/* Velocímetro "Prazo médio para fechar os A3" */
+.a8-velocimetro { max-width: 380px; display: block; margin: 0 auto; }
+.dash-svg text.a8-velocimetro-marca { font-size: 11px; fill: #666; font-weight: 600; }
+.a8-velocimetro-resumo { text-align: center; margin-top: -6px; }
+.a8-velocimetro-resumo strong { display: block; font-size: 1.7rem; font-weight: 800; color: #1a1a1a; line-height: 1.1; }
+.a8-velocimetro-resumo span { font-size: 0.8rem; color: #666; }
+.a8-velocimetro-rodape { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin-top: 10px; font-size: 0.76rem; color: #555; }
+.a8-velocimetro-rodape span:last-child:not(:first-child) { color: inherit; }
+
+.a8-velocimetro-resumo strong { font-size: 2rem; }
+.a8-velocimetro-resumo span { display: block; margin-top: 2px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; color: #777; }
+.a8-velocimetro-rodape { gap: 6px 10px; }
+.a8-velocimetro-rodape span { padding: 3px 10px; border-radius: 999px; background: #f1f1f1; font-weight: 700; color: #333; }
+
+/* Quadros dentro dos painéis nunca ficam mais largos que o painel (o conteúdo largo rola dentro do quadro) */
+.a8-paineis > .a8-painel, .a8-painel-corpo > .dash-card, .dash-grid > .dash-card { min-width: 0; }
+/* Lista do mapa (% por setor): cabe em quadro estreito, com rolagem própria */
+.a8-mapa-painel .table-wrap { max-height: 360px; overflow: auto; }
+.a8-mapa-painel .a8-tabela-controle { min-width: 0; table-layout: fixed; width: 100%; font-size: 0.8rem; }
+.a8-mapa-painel .a8-tabela-controle th, .a8-mapa-painel .a8-tabela-controle td { padding: 6px 6px; overflow-wrap: break-word; }
+.a8-mapa-painel .a8-tabela-controle th:nth-child(1) { width: 17%; } .a8-mapa-painel .a8-tabela-controle th:nth-child(2) { width: 17%; }
+.a8-mapa-painel .a8-tabela-controle th:nth-child(3) { width: 13%; } .a8-mapa-painel .a8-tabela-controle th:nth-child(5) { width: 15%; }
+.a8-mapa-painel .a8-tabela-controle th:nth-child(6) { width: 12%; }
+.a8-mapa-painel .a8-texto-acao { min-width: 0; max-width: none; }
+.a8-mapa-painel .a8-badge { white-space: normal; font-size: 0.7rem; }
+.a8-mapa-painel-topo { position: sticky; top: 0; }
+.a8-mapa-painel td.a8-data { white-space: nowrap; overflow-wrap: normal; }
+.a8-mapa-painel .a8-tabela-controle th:nth-child(6) { width: 15%; } .a8-mapa-painel .a8-tabela-controle th:nth-child(1) { width: 19%; }
+.a8-mapa-painel td.id-mrhb, .a8-lista-a3 td.id-mrhb { white-space: normal; overflow-wrap: anywhere; }
+
+/* Cards (KPIs) dentro dos painéis de A3 e de ações */
+.a8-kpis-painel { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 12px; margin: 0; padding: 14px 14px 0; }
+.a8-kpis-painel .dash-kpi { min-width: 0; }
+.a8-painel-a3 .a8-kpis-painel .dash-kpi { border-top-color: #3d3d3d; }
+.a8-painel-acoes .a8-kpis-painel .dash-kpi { border-top-color: #d7261e; }
+.a8-painel-a3 .a8-kpis-painel .dash-kpi.dash-kpi-ok, .a8-painel-acoes .a8-kpis-painel .dash-kpi.dash-kpi-ok { border-top-color: #0ca30c; }
+.a8-painel-a3 .a8-kpis-painel .dash-kpi.dash-kpi-critico, .a8-painel-acoes .a8-kpis-painel .dash-kpi.dash-kpi-critico { border-top-color: #b3261e; }
+@media (max-width: 1100px) { .a8-kpis-painel .dash-kpi-valor { font-size: 1.6rem; } }
+@media print { .a8-kpis-painel { grid-template-columns: repeat(3, 1fr) !important; padding: 3mm 3mm 0; } }
+
+/* Impressão da Visão Geral: o Chrome calcula as media queries com uma largura menor que a
+   folha A3, então os painéis forçam as 2 colunas aqui (senão saem empilhados). */
+@media print {
+  .a8-paineis { grid-template-columns: 1fr 1fr !important; }
+  .a8-painel-largo .dash-grid.a8-painel-corpo { grid-template-columns: 1fr 1fr !important; }
+  .a8-painel-cabecalho { break-after: avoid; }
+}
+
+/* "% por setor" em barras horizontais */
+.a8-mapa-legenda[hidden] { display: none; }
+.a8-barras-pct .a8-barra-pct-fundo { fill: #f2f2f2; }
+.a8-barras-pct .a8-barra-pct-valor { fill: #d7261e; transition: fill .12s; }
+.a8-barras-pct .a8-barra-pct:hover .a8-barra-pct-valor { fill: #b3261e; }
+.a8-barras-pct .a8-barra-pct.selecionado .a8-barra-pct-valor { fill: #8f1d17; }
+.a8-barras-pct .a8-barra-pct.apagado { opacity: 0.4; }
+.dash-svg text.a8-barra-pct-num { font-size: 12px; font-weight: 800; }
+.dash-svg text.a8-barra-pct-qtd { font-size: 11px; fill: #777; }
+
+/* Etapas do 8D: seção do A3 de cada etapa + legenda */
+.a3-etapa-secao { font-size: 0.66rem; font-weight: 700; color: #8f1d17; }
+.a3-etapa-clicavel { cursor: pointer; transition: transform .1s, box-shadow .1s; }
+.a3-etapa-clicavel:hover { box-shadow: 0 0 0 2px #d7261e inset; }
+.a3-etapa-clicavel:focus-visible { outline: 2px solid #d7261e; outline-offset: 2px; }
+.a3-etapas-legenda-botao { margin-left: auto; border: 1px solid #d9d9d9; background: #fff; border-radius: 999px; padding: 3px 12px;
+  font: inherit; font-size: 0.78rem; font-weight: 700; color: #1a1a1a; cursor: pointer; }
+.a3-etapas-legenda-botao:hover { border-color: #d7261e; color: #b3261e; }
+.a3-etapas-legenda { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 0.8rem; min-width: 0 !important; }
+.a3-etapas-legenda th { text-align: left; background: #f4f4f4; padding: 6px 8px; font-weight: 700; border-bottom: 2px solid #e2e2e2; position: static; }
+.a3-etapas-legenda td { padding: 5px 8px; border-bottom: 1px solid #ececec; vertical-align: middle; }
+.a3-legenda-etapa { font-weight: 700; white-space: nowrap; }
+.a3-legenda-regra { color: #555; }
+.a3-legenda-secao { border: 0; background: #fdecea; color: #b3261e; font: inherit; font-weight: 800; font-size: 0.74rem;
+  padding: 2px 9px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.a3-legenda-secao:hover { background: #f8d3cf; }
+@keyframes a3-piscar-secao { 0%, 100% { box-shadow: none; } 20%, 60% { box-shadow: 0 0 0 4px #fab219; } }
+.a3-secao-destaque { animation: a3-piscar-secao 1.6s ease-in-out 1; }
+
+/* Importar A3 em Excel: janela de resultado */
+.a8-importacao-fundo { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.a8-importacao-janela { width: min(860px, 100%); max-height: 85vh; overflow: auto; padding: 20px 22px; }
+.a8-importacao-janela h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.a8-importacao-resumo { margin: 0 0 12px; font-weight: 700; color: #444; }
+.a8-importacao-tabela { min-width: 0 !important; width: 100%; table-layout: fixed; font-size: 0.82rem; }
+.a8-importacao-tabela th:nth-child(1) { width: 42%; } .a8-importacao-tabela th:nth-child(2) { width: 16%; }
+.a8-importacao-tabela th:nth-child(4) { width: 13%; }
+.a8-importacao-arquivo { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a8-importacao-msg { font-size: 0.76rem; color: #555; margin-top: 3px; overflow-wrap: anywhere; }
+.a8-importacao-dica { font-size: 0.78rem; color: #666; margin: 12px 0 0; }
+.a8-importacao-botoes { display: flex; justify-content: flex-end; margin-top: 12px; }
+@media print { #a8-btn-importar-excel { display: none !important; } }
+
+/* Formulário A3 (lista): tabela cabe na largura da tela, sem rolagem lateral */
+#a8-tabela-analises { min-width: 0; width: 100%; table-layout: fixed; font-size: 0.8rem; }
+#a8-tabela-analises th { white-space: normal; padding: 8px 6px; line-height: 1.2; }
+#a8-tabela-analises td { padding: 7px 6px; overflow-wrap: break-word; }
+#a8-tabela-analises td.id-mrhb { overflow-wrap: anywhere; }
+#a8-tabela-analises td.a8-data { white-space: nowrap; }
+#a8-tabela-analises td.descricao-truncada { max-width: none; white-space: normal; text-overflow: clip; }
+#a8-tabela-analises .a8-etapa-badge, #a8-tabela-analises .badge-status { white-space: normal; line-height: 1.25; }
+#a8-tabela-analises .progresso-coluna { min-width: 0; }
+.table-wrap:has(#a8-tabela-analises) { overflow-x: hidden; }
+@media (max-width: 1280px) {
+  #a8-tabela-analises { font-size: 0.72rem; }
+  #a8-tabela-analises td, #a8-tabela-analises th { padding: 6px 3px; }
+}
+#a8-tabela-analises .badge-status, #a8-tabela-analises .a8-etapa-badge { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 2px 6px; }
+#a8-tabela-analises .progresso-barra { min-width: 0; flex: 1 1 auto; }

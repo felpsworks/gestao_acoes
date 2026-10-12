@@ -1,0 +1,206 @@
+{% extends "acoes8d/_layout.html" %}
+{% block titulo_a8 %}Formulário A3{% endblock %}
+{% block conteudo_a8 %}
+<div class="a8-pagina-larga" id="a8-editor" data-analise-id="{{ analise_id }}">
+
+  <div class="a3-barra">
+    <a href="{{ url_for('acoes8d.analises') }}" class="a8-voltar">← Formulário A3</a>
+    <label class="a3-barra-campo">Status do A3:
+      <select data-cab="status" data-opcoes="status_a3"></select>
+    </label>
+    <span class="a3-barra-campo" title="Emissão + 31 dias (FM-QS-025 rev. 05)">Prazo limite: <strong data-cab-texto="prazo_limite"></strong></span>
+    <span class="a3-resumo-acoes" id="a3-resumo-acoes"></span>
+    <div class="a8-editor-botoes">
+      <span id="a8-estado-salvo" class="a8-estado-salvo"></span>
+      <button type="button" class="btn btn-secondary btn-small" id="a8-btn-imprimir" title="Imprime ou salva em PDF (escolha &quot;Salvar como PDF&quot;) — sempre em uma folha A3 paisagem">Imprimir / PDF</button>
+      <button type="button" class="btn btn-excluir" id="a8-btn-excluir-a3">Excluir A3</button>
+      <button type="button" class="btn btn-primary btn-small" id="a8-btn-salvar">Salvar</button>
+    </div>
+  </div>
+
+  <div id="a8-alerta-editor" class="alert error" hidden></div>
+  <div id="a8-vinculo-gerenciador" class="a8-vinculo"></div>
+  <nav class="a3-etapas card" id="a3-etapas" aria-label="Etapas do 8D"></nav>
+
+  {# =================== FOLHA A3 (FRP - A3) =================== #}
+  <div class="a3-rolagem">
+  <div class="a3-folha" id="a3-folha">
+
+    <div class="a3-topo">
+      <div class="a3-doc"><img src="{{ url_for('acoes8d.static', filename='img/logo_wetzel.png') }}" alt="Wetzel Automotiva" /><span>FM-QS-025</span></div>
+      <h1 class="a3-titulo">Formulário de Resolução de Problemas - A3</h1>
+      <div class="a3-numero">
+        <span class="a3-numero-rotulo">Nº</span>
+        <div class="a3-numero-valor">
+          <strong data-cab-texto="id_mrhb"></strong>
+          <textarea rows="1" data-cab="numero_notificacao" placeholder="Nº notificação" aria-label="Nº da notificação do cliente"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="a3-cabecalho">
+      <label class="a3-rot">Responsável:</label><input class="a3-cel" data-cab="responsavel" list="a8-lista-pessoas" />
+      <label class="a3-rot">Área:</label><textarea rows="1" class="a3-cel" data-cab="area"></textarea>
+      <label class="a3-rot">Turno:</label><select class="a3-cel" data-cab="turno" data-opcoes="turnos" data-vazio=""></select>
+      <label class="a3-rot">Emissão:</label><input class="a3-cel" data-cab="data_emissao" type="date" />
+      <label class="a3-rot">Área:</label><textarea rows="1" class="a3-cel" data-cab="area_gestor"></textarea>
+
+      <label class="a3-rot">Tema:</label><select class="a3-cel" data-cab="tema" data-opcoes="temas"></select>
+      <label class="a3-rot">Máquina:</label><textarea rows="1" class="a3-cel" data-cab="maquina"></textarea>
+      <label class="a3-rot">Supervisor:</label><input class="a3-cel" data-cab="supervisor" list="a8-lista-pessoas" />
+      <label class="a3-rot">Atualização:</label><span class="a3-cel a3-cel-fixa" data-cab-texto="atualizado_em"></span>
+      <label class="a3-rot">Gestor:</label><input class="a3-cel" data-cab="gestor" list="a8-lista-pessoas" />
+    </div>
+
+    <div class="a3-corpo">
+      {# ---------------- COLUNA ESQUERDA ---------------- #}
+      <div class="a3-coluna">
+        <div class="a3-secao">1 - Descrição do problema</div>
+        <table class="a3-tabela">
+          <colgroup><col style="width:30%"><col style="width:25%"><col style="width:9%"><col style="width:22%"><col style="width:14%"></colgroup>
+          <tr class="a3-th"><th>Cliente ou Emissor</th><th>Produto ou Requisito</th><th colspan="2">No. do produto ou requisito:</th><th>Quantidade</th></tr>
+          <tr>
+            <td rowspan="2"><textarea rows="1" data-cab="cliente" class="a3-centro" aria-label="Cliente ou emissor"></textarea></td>
+            <td rowspan="2"><textarea rows="1" data-cab="produto" class="a3-centro" aria-label="Produto ou requisito"></textarea></td>
+            <th class="a3-rot-cel">Cliente</th>
+            <td><textarea rows="1" data-cab="pn_cliente" class="a3-centro" aria-label="Nº produto cliente"></textarea></td>
+            <td rowspan="2"><textarea rows="1" data-cab="quantidade" class="a3-centro" aria-label="Quantidade"></textarea></td>
+          </tr>
+          <tr>
+            <th class="a3-rot-cel">Wetzel</th>
+            <td><textarea rows="1" data-cab="pn_mrhb" class="a3-centro" aria-label="Nº produto MRHB"></textarea></td>
+          </tr>
+        </table>
+        <table class="a3-tabela">
+          <colgroup><col style="width:52%"><col style="width:48%"></colgroup>
+          <tr class="a3-th"><th>Análise do fenômeno:</th><th>Ilustração:</th></tr>
+          <tr>
+            <td class="a3-fenomeno">
+              <span class="a3-mini-rot">Descrição:</span>
+              <textarea data-campo="descricao.descricao" rows="6" aria-label="Descrição"
+                placeholder="Ex.: No dia 22/07/26 foi notificado pelo cliente 31 peças PN 2628 apresentando…"></textarea>
+              <span class="a3-mini-rot">Análise:</span>
+              <textarea data-campo="descricao.analise_fenomeno" rows="3" aria-label="Análise do fenômeno"></textarea>
+            </td>
+            <td class="a3-ilustracao" id="a3-ilustracao"></td>
+          </tr>
+        </table>
+        <table class="a3-tabela">
+          <tr class="a3-th"><th colspan="2">Rastreabilidade</th></tr>
+          <tr class="a3-th a3-th-claro"><th>Injeção</th><th>Usinagem</th></tr>
+          <tr>
+            <td><textarea rows="1" data-campo="descricao.rastreabilidade_injecao" class="a3-centro" aria-label="Rastreabilidade injeção"></textarea></td>
+            <td><textarea rows="1" data-campo="descricao.rastreabilidade_usinagem" class="a3-centro" aria-label="Rastreabilidade usinagem"></textarea></td>
+          </tr>
+          <tr class="a3-th"><th>Definição do problema:</th><th>Objetivo:</th></tr>
+          <tr>
+            <td><textarea data-cab="definicao_problema" rows="2" aria-label="Definição do problema"></textarea></td>
+            <td><textarea data-campo="descricao.objetivo" rows="2" aria-label="Objetivo"></textarea></td>
+          </tr>
+        </table>
+
+        <div class="a3-secao">2 - Equipe</div>
+        <table class="a3-tabela">
+          <colgroup><col style="width:30%"><col style="width:20%"><col style="width:30%"><col style="width:20%"></colgroup>
+          <tr class="a3-th"><th>Nome:</th><th>Setor:</th><th>Nome:</th><th>Setor:</th></tr>
+          <tbody id="a3-equipe"></tbody>
+        </table>
+
+        <div class="a3-secao">3 - Ações de contenção e remediação</div>
+        <div class="a3-secao a3-secao-sub">3.1 - Contenção Nacional</div>
+        <table class="a3-tabela a3-tabela-acoes">
+          <colgroup><col><col style="width:96px"><col style="width:84px"><col style="width:44px"><col style="width:38px"><col style="width:24px"></colgroup>
+          <tr class="a3-th"><th>Descrição das ações:</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th title="Marque quando a ação não se aplica a este A3">N/A</th><th></th></tr>
+          <tbody id="a3-contencao-nacional"></tbody>
+        </table>
+        <div class="a3-secao a3-secao-sub a3-secao-check">
+          <span>3.2 - Exportação (Aplicável quando houver itens exportados)</span>
+          <label class="a3-check-aplicavel"><input type="checkbox" id="a3-exportacao-aplicavel" /> Aplicável</label>
+        </div>
+        <table class="a3-tabela a3-tabela-acoes">
+          <colgroup><col><col style="width:104px"><col style="width:92px"><col style="width:44px"><col style="width:24px"></colgroup>
+          <tr class="a3-th"><th>Descrição das ações:</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th></th></tr>
+          <tbody id="a3-contencao-exportacao" data-acoes="contencao" data-subgrupo="3.2 Exportação" data-modelo="contencao_exportacao"></tbody>
+        </table>
+
+        <div class="a3-secao">4 - Análise de Causa Raiz</div>
+        <div class="a3-ishikawa" id="a3-ishikawa"></div>
+      </div>
+
+      {# ---------------- COLUNA DIREITA ---------------- #}
+      <div class="a3-coluna a3-coluna-dir">
+        <table class="a3-tabela a3-porques">
+          <colgroup><col style="width:34px"><col><col><col></colgroup>
+          <thead><tr class="a3-th" id="a3-porques-cabecalho"></tr></thead>
+          <tbody id="a3-porques"></tbody>
+        </table>
+
+        <div class="a3-secao">5 - Ações corretivas e de Abrangência</div>
+        <table class="a3-tabela a3-tabela-acoes a3-tabela-sec5">
+          <colgroup><col style="width:70px"><col><col style="width:92px"><col style="width:80px"><col style="width:40px"><col style="width:50px"></colgroup>
+          <tr class="a3-th"><th colspan="2">Descrição das ações Corretivas (14 Dias)</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th title="Abrangência">Abrang.</th></tr>
+          <tbody data-acoes="corretiva" data-subgrupo="Ocorrência" data-rotulo="Ocorrência:" data-linhas="2" data-linhas-editaveis></tbody>
+          <tbody data-acoes="corretiva" data-subgrupo="Detecção" data-rotulo="Detecção:" data-linhas="2" data-linhas-editaveis></tbody>
+          <tbody data-acoes="corretiva" data-subgrupo="Sistêmico" data-rotulo="Sistêmico:" data-linhas="2" data-linhas-editaveis></tbody>
+          <tr class="a3-th"><th colspan="2">Descrição das ações Preventivas (35 Dias)</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th title="Abrangência">Abrang.</th></tr>
+          <tbody data-acoes="preventiva" data-subgrupo="*" data-rotulo="" data-linhas="2" data-linhas-editaveis></tbody>
+          <tr>
+            <th colspan="2" class="a3-rot-cel a3-abrangencia-rot">Descrição da Abrangência</th>
+            <td colspan="4"><textarea data-campo="abrangencia.texto" rows="2" aria-label="Descrição da abrangência"></textarea></td>
+          </tr>
+        </table>
+
+        <div class="a3-secao">6 - Retroalimentação do sistema</div>
+        <table class="a3-tabela a3-tabela-acoes">
+          <colgroup><col style="width:25%"><col><col style="width:104px"><col style="width:92px"><col style="width:44px"><col style="width:38px"></colgroup>
+          <tr class="a3-th"><th>Documentação:</th><th>Descrição da alteração:</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th title="Marque quando o documento não se aplica a este A3">N/A</th></tr>
+          <tbody id="a3-retro"></tbody>
+        </table>
+
+        <div class="a3-secao">7 - Análise de Eficácia</div>
+        <table class="a3-tabela a3-tabela-acoes">
+          <colgroup><col><col style="width:104px"><col style="width:92px"><col style="width:44px"><col style="width:60px"></colgroup>
+          <tr class="a3-th"><th>Descrição das ações:</th><th>Resp:</th><th>Prazo:</th><th title="G = Concluída · Y = Em andamento · vermelho = atrasada · em branco = aberta">Status:</th><th>Eficaz?</th></tr>
+          <tbody id="a3-eficacia"></tbody>
+        </table>
+
+        <div class="a3-secao">8 - Fechamento</div>
+        <table class="a3-tabela">
+          <colgroup><col><col style="width:26%"></colgroup>
+          <tr class="a3-th"><th>Lições aprendidas pela equipe multifuncional</th><th>Validação pelo Emissor</th></tr>
+          <tr>
+            <td><textarea data-campo="fechamento.licoes_aprendidas" rows="4" aria-label="Lições aprendidas"></textarea></td>
+            <td class="a3-validacao" id="a3-validacao"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  {# =================== EVIDÊNCIAS =================== #}
+  <details class="a3-folha-extra" data-folha="evidencias" open>
+    <summary>Evidências das ações <span id="a8-evidencias-resumo" class="a3-resumo-pill"></span></summary>
+    <div class="a3-folha-extra-corpo">
+      <p class="a8-ajuda">Cada ação lançada no A3 aparece aqui. Clique em <strong>Adicionar evidência</strong> para montar a evidência
+        (fotos, setas, círculos e textos). Na impressão, cada ação sai em uma folha A3 com descrição, responsável, prazo, status e a evidência.</p>
+      <div class="table-wrap">
+        <table class="a8-tabela-evidencias">
+          <thead><tr>
+            <th class="a8-evid-col-imprimir"><label class="a8-evid-imprimir" title="Marcar / desmarcar todas"><input type="checkbox" id="a8-evid-imprimir-todas" aria-label="Imprimir todas as evidências" /> Imprimir</label></th>
+            <th>Seção</th><th>Descrição da ação</th><th>Responsável</th><th>Prazo</th><th>Status</th><th>Evidência</th>
+          </tr></thead>
+          <tbody id="a8-evidencias-corpo"></tbody>
+        </table>
+      </div>
+    </div>
+  </details>
+
+  {# Páginas de evidência para impressão (uma ação por folha A3). Só aparecem no papel/PDF. #}
+  <div id="a3-impressao-evidencias" class="a3-impressao-evidencias" aria-hidden="true"></div>
+</div>
+{% endblock %}
+{% block scripts_a8 %}
+<script src="{{ url_for('acoes8d.static', filename='ilustracao.js') }}"></script>
+<script src="{{ url_for('acoes8d.static', filename='editor_a3.js') }}"></script>
+{% endblock %}
