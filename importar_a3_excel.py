@@ -46,10 +46,16 @@ def main():
     conn.row_factory = sqlite3.Row  # a regra de status do sistema lê as colunas pelo nome
     conn.execute("PRAGMA foreign_keys = ON")
     conn.executescript(SCHEMA)
+    # No banco do Gerenciador (com a tabela reclamacoes) o A3 precisa existir como reclamação.
+    tem_reclamacoes = bool(conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'reclamacoes'").fetchone())
     importados = ignorados = erros = 0
     for arquivo in arquivos:
         try:
             analise, dados, acoes = ler_a3(arquivo)
+            if tem_reclamacoes and not conn.execute(
+                    "SELECT 1 FROM reclamacoes WHERE id_mrhb = ?", (analise["id_mrhb"],)).fetchone():
+                raise ValueError(f"ID Wetzel {analise['id_mrhb']} não encontrado no Gerenciador (todo A3 precisa estar vinculado a uma reclamação)")
             if gravar(conn, analise, dados, acoes) is not None:
                 conn.commit()
                 importados += 1

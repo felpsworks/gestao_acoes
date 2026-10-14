@@ -9,6 +9,21 @@
   // Prazo limite (vindo da rosca "Situação dos A3"): "vencido" ou "no_prazo".
   // Área (vinda do gráfico "A3 por área" da Visão Geral).
   let filtroArea = parametros.get("area") || "";
+  // Tipos de reclamação (botões; podem vir da Visão Geral pela URL). Vazio até carregar o padrão.
+  let filtroTipos = (parametros.get("tipos") || "").split(",").filter(Boolean);
+  let tiposOpcoes = [];
+  let tiposPadrao = [];
+  function desenharTipos() {
+    A8.botoesTipos(document.getElementById("a8-tipos-a3-botoes"), tiposOpcoes, filtroTipos, (novos) => {
+      filtroTipos = novos;
+      const p = new URLSearchParams(location.search);
+      const padrao = novos.length === tiposPadrao.length && novos.every((t) => tiposPadrao.includes(t));
+      if (padrao) p.delete("tipos"); else p.set("tipos", novos.join(","));
+      history.replaceState(null, "", `${location.pathname}${p.toString() ? `?${p}` : ""}`);
+      desenharTipos();
+      renderizar();
+    });
+  }
   let filtroPrazo = ["vencido", "no_prazo"].includes(parametros.get("prazo")) ? parametros.get("prazo") : "";
   // Filtros vindos da Visão Geral (cards de A3).
   if (parametros.has("status")) filtroStatus.value = parametros.get("status") === "todos" ? "" : parametros.get("status");
@@ -33,6 +48,11 @@
     const clientes = [...new Set(analises.map((a) => a.cliente).filter(Boolean))].sort((x, y) => x.localeCompare(y, "pt-BR"));
     A8.preencherSelect(filtroCliente, clientes, { vazio: "Todos os clientes" });
     filtroCliente.value = clientes.includes(clienteAtual) ? clienteAtual : "";
+    const m = await A8.modelo();
+    tiposOpcoes = m.tipos_reclamacao || [];
+    tiposPadrao = m.tipos_padrao || [];
+    if (!filtroTipos.length) filtroTipos = [...tiposPadrao]; // padrão: Formal, Informal, Logística
+    desenharTipos();
     renderizar();
   }
 
@@ -46,6 +66,7 @@
       if (!filtrosA3.testa(a)) return false;
       if (cliente && a.cliente !== cliente) return false;
       if (filtroArea && a.area_setor !== filtroArea) return false;
+      if (filtroTipos.length && !filtroTipos.includes(a.tipo)) return false;
       if (filtroPrazo) {
         const vencido = a.status === "Em andamento" && a.prazo_limite && a.prazo_limite < hoje;
         if (filtroPrazo === "vencido" ? !vencido : (a.status !== "Em andamento" || vencido)) return false;
@@ -283,13 +304,20 @@
       confirmacao.className = "pn-confirmacao miss";
       confirmacao.querySelector(".pn-confirmacao-icone").textContent = "!";
       titulo.textContent = "ID não encontrado no Gerenciador.";
-      detalhe.textContent = "Confira o ID. Se continuar, o A3 é criado sem os dados da reclamação (preencha manualmente).";
+      detalhe.textContent = "Todo A3 precisa estar vinculado a uma reclamação. Cadastre a reclamação no Gerenciador primeiro ou confira o ID.";
     }
   }
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (reclamacaoAtual && reclamacaoAtual.analise_id) {
+    if (!reclamacaoAtual) await verificarId(); // garante a conferência mesmo sem sair do campo
+    if (!reclamacaoAtual) {
+      alerta.textContent = "Informe um ID Wetzel de uma reclamação cadastrada no Gerenciador (obrigatório para criar o A3).";
+      alerta.hidden = false;
+      campoId.focus();
+      return;
+    }
+    if (reclamacaoAtual.analise_id) {
       abrir(reclamacaoAtual.analise_id);
       return;
     }

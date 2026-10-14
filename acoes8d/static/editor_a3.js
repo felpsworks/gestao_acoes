@@ -62,7 +62,7 @@
     const corpo = { dados: { ...dados, equipe: dados.equipe.filter((m) => (m.nome || "").trim() || (m.setor || "").trim()) } };
     raiz.querySelectorAll("[data-cab]").forEach((el) => (corpo[el.dataset.cab] = analise[el.dataset.cab] ?? ""));
     corpo.resultado_validacao = analise.resultado_validacao ?? ""; // quadro "Validação pelo Emissor" (checkboxes)
-    corpo.prazo_limite = analise.prazo_limite ?? ""; // calculado (emissão + 31 dias), mostrado na barra
+    corpo.prazo_limite = analise.prazo_limite ?? ""; // calculado (emissão + 30 dias), mostrado na barra
     return corpo;
   }
 

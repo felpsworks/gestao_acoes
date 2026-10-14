@@ -856,7 +856,7 @@ body.a3-imprimindo .a3-btn-lapis, body.a3-imprimindo .a3-fora-esquerda { display
 .a8-subnav a:hover { color: #d7261e; }
 
 /* Abas do módulo: todas do mesmo tamanho */
-.a8-subnav { display: grid; grid-template-columns: repeat(4, 150px); gap: 4px; }
+.a8-subnav { display: grid; grid-template-columns: repeat(5, 150px); gap: 4px; }
 .a8-subnav a { text-align: center; padding: 8px 6px; white-space: nowrap; }
 @media (max-width: 680px) { .a8-subnav { grid-template-columns: repeat(2, 1fr); width: 100%; } }
 
@@ -1224,3 +1224,36 @@ body.a8-organizando .a8-grupo-graficos:empty { outline-color: #c8c8c8; }
 }
 #a8-tabela-analises .badge-status, #a8-tabela-analises .a8-etapa-badge { display: inline-block; max-width: 100%; box-sizing: border-box; padding: 2px 6px; }
 #a8-tabela-analises .progresso-barra { min-width: 0; flex: 1 1 auto; }
+
+/* Botões "Tipo de reclamação" no Formulário A3 e na Gestão de Ações */
+.a8-toolbar-tipos { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 0 16px 12px; }
+.a8-toolbar-tipos .dash-filtro-rotulo, .a8-f-tipos .dash-filtro-rotulo { font-weight: 600; color: #1a1a1a; }
+@media print { .a8-toolbar-tipos, .a8-f-tipos { display: none !important; } }
+
+/* --- Aba Guia ------------------------------------------------------------------- */
+.a8-guia-busca { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.a8-guia-busca input { flex: 1; max-width: 560px; height: 38px; padding: 0 12px; border: 1px solid var(--line, #d9d9d9); border-radius: 8px; font: inherit; }
+.a8-guia-contagem { font-size: 0.82rem; color: #666; }
+.a8-guia-corpo { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 18px; align-items: start; }
+.a8-guia-indice { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 2px; padding: 14px; }
+.a8-guia-indice strong { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #666; margin-bottom: 6px; }
+.a8-guia-indice a { color: #1a1a1a; text-decoration: none; font-size: 0.88rem; padding: 6px 8px; border-radius: 6px; }
+.a8-guia-indice a:hover { background: #fff5f4; color: #b3261e; }
+.a8-guia-conteudo { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.a8-guia-secao { padding: 20px 24px; scroll-margin-top: 12px; }
+.a8-guia-secao[hidden] { display: none; }
+.a8-guia-secao h2 { margin: 0 0 12px; font-size: 1.2rem; padding-bottom: 8px; border-bottom: 2px solid #d7261e; }
+.a8-guia-secao h3 { margin: 18px 0 8px; font-size: 1rem; scroll-margin-top: 12px; }
+.a8-guia-secao ul, .a8-guia-secao ol { margin: 6px 0; padding-left: 20px; line-height: 1.6; }
+.a8-guia-secao li { margin: 3px 0; }
+.a8-guia-secao p { line-height: 1.6; margin: 6px 0; }
+.a8-guia-nota { background: #fff8e6; border-left: 4px solid #f9c80e; padding: 8px 12px !important; border-radius: 0; }
+.a8-guia-tabela { width: 100%; min-width: 0 !important; border-collapse: collapse; font-size: 0.86rem; margin: 6px 0 4px; }
+.a8-guia-tabela th { text-align: left; background: #f4f4f4; padding: 8px 10px; border-bottom: 2px solid #e2e2e2; position: static; white-space: normal; }
+.a8-guia-tabela td { padding: 8px 10px; border-bottom: 1px solid #ececec; vertical-align: top; }
+.a8-guia-tabela ol { margin: 4px 0; }
+.a8-guia-secao details { border: 1px solid #ececec; border-radius: 8px; padding: 10px 14px; margin: 8px 0; }
+.a8-guia-secao summary { cursor: pointer; font-weight: 700; }
+.a8-guia-secao details[open] summary { color: #b3261e; }
+@media (max-width: 900px) { .a8-guia-corpo { grid-template-columns: 1fr; } .a8-guia-indice { position: static; } }
+@media print { .a8-guia-busca, .a8-guia-indice { display: none !important; } .a8-guia-corpo { display: block; } .a8-guia-secao { break-inside: auto; } }

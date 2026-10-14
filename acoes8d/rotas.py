@@ -6,8 +6,9 @@ from pathlib import Path
 from flask import abort, current_app, jsonify, redirect, render_template, request, send_from_directory, url_for
 
 from . import bp
-from .db import analistas_gerenciador, buscar_reclamacao, conectar, conectar_gerenciador, defeitos_reclamacao, pesquisar_reclamacoes, tipos_reclamacao
+from .db import analistas_gerenciador, buscar_reclamacao, conectar, conectar_gerenciador, defeitos_reclamacao, normalizar_tipo, pesquisar_reclamacoes, tipos_reclamacao
 from .etapas import (
+    ETAPAS_8D,
     etapas_pendentes,
     atualizar_datas_de_campos,
     calcular_etapas,
@@ -15,12 +16,14 @@ from .etapas import (
     sincronizar_etapas_gerenciador,
 )
 from .modelo_a3 import (
+    DIAS_PRAZO_LIMITE_A3,
     ANEXO_SECOES,
     GRUPOS_POR_CHAVE,
     FAIXAS_VELOCIMETRO,
     META_DIAS_FECHAR_A3,
     SETORES_PADRAO,
-    TIPOS_VELOCIMETRO,
+    SEM_RECLAMACAO,
+    TIPOS_PADRAO_VISAO,
     normalizar_setor,
     STATUS_A3,
     campos_faltando_contencao,
@@ -28,7 +31,7 @@ from .modelo_a3 import (
     mesclar_com_padrao,
     modelo_para_frontend,
 )
-from .regras import computar_dashboard, enriquecer_acao, para_data, status_automatico_a3
+from .regras import DIAS_ALERTA_VENCIMENTO, computar_dashboard, enriquecer_acao, para_data, status_automatico_a3
 from .servicos import criar_analise, sincronizar_a3_automaticos
 
 # Campos do cabeçalho do A3 que viram colunas (o restante do formulário fica
@@ -210,6 +213,34 @@ def pessoas():
     return _pagina("pessoas.html", "pessoas")
 
 
+# Etapa do 8D -> (seção do A3, o que faz contar como realizada). Usado na aba Guia.
+SECAO_DA_ETAPA = {
+    "Contenção": ("3 · Contenção", "Todas as ações da 3.1 (e da 3.2, se \"Aplicável\") em G"),
+    "Causa Raiz": ("4 · Causa raiz", "Campo \"Causa raiz\" dos 5 Porquês preenchido"),
+    "Ação Corretiva": ("5 · Ações corretivas", "Todas as ações corretivas em G"),
+    "Poka Yoke": ("6 · Retroalimentação", "Ação da linha em G (sem ação ou N/A = não aplicável)"),
+    "LPA": ("6 · Retroalimentação", "Ação da linha em G (sem ação ou N/A = não aplicável)"),
+    "Trab. Padronizado": ("6 · Retroalimentação", "Ação da linha em G (sem ação ou N/A = não aplicável)"),
+    "FMEA": ("6 · Retroalimentação", "Ação da linha em G (sem ação ou N/A = não aplicável)"),
+    "Plano de Controle": ("6 · Retroalimentação", "Ação da linha em G (sem ação ou N/A = não aplicável)"),
+    "Validação": ("7 · Eficácia", "Qualquer ação da seção 7 em G"),
+    "Lições Aprendidas": ("8 · Fechamento", "Campo \"Lições aprendidas\" preenchido"),
+    "8D Fechado": ("8 · Fechamento", "A3 concluído (ações G + etapas realizadas + \"8D Aprovado\")"),
+}
+
+
+@bp.route("/guia")
+def guia():
+    """Aba Guia: as regras que o sistema aplica sozinho (valores lidos do próprio código)."""
+    dias_acao = {g["chave"]: g["dias_sugeridos"] for g in GRUPOS_POR_CHAVE.values()}
+    return _pagina(
+        "guia.html", "guia",
+        etapas=ETAPAS_8D, secao_da_etapa=SECAO_DA_ETAPA, setores=SETORES_PADRAO, tipos_padrao=TIPOS_PADRAO_VISAO,
+        meta=META_DIAS_FECHAR_A3, dias_prazo_limite=DIAS_PRAZO_LIMITE_A3, dias_alerta=DIAS_ALERTA_VENCIMENTO,
+        dias_acao=dias_acao,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Modelo do formulário e integração com o Gerenciador
 # ---------------------------------------------------------------------------
@@ -237,7 +268,22 @@ def api_modelo():
     modelo["pessoas"] = pessoas_ativas
     modelo["analistas"] = _analistas()
     modelo["setores"] = sorted(set(SETORES_PADRAO) | setores_usados, key=str.casefold)
+    modelo["tipos_reclamacao"], modelo["tipos_padrao"] = _opcoes_tipos(), TIPOS_PADRAO_VISAO
     return jsonify(modelo)
+
+
+def _opcoes_tipos(tipos_dos_a3=None):
+    """Botões "Tipo de reclamação": padrão primeiro, depois os demais tipos do Gerenciador e,
+    por último, "Sem reclamação" (só se existir A3 sem vínculo)."""
+    mapa = tipos_reclamacao()
+    if tipos_dos_a3 is None:
+        conn = conectar()
+        ids = [l[0] for l in conn.execute("SELECT id_mrhb FROM a3_analises")]
+        conn.close()
+        tipos_dos_a3 = {normalizar_tipo(mapa.get(i)) or SEM_RECLAMACAO for i in ids}
+    existentes = {normalizar_tipo(t) for t in mapa.values() if t} | set(tipos_dos_a3)
+    return (TIPOS_PADRAO_VISAO + sorted(existentes - set(TIPOS_PADRAO_VISAO) - {SEM_RECLAMACAO}, key=str.casefold)
+            + ([SEM_RECLAMACAO] if SEM_RECLAMACAO in existentes else []))
 
 
 @bp.route("/api/reclamacoes")
@@ -277,6 +323,7 @@ def api_listar_analises():
         dados = mesclar_com_padrao(json.loads(linha.pop("dados") or "{}"))
         linha["etapa_atual"] = calcular_etapas(linha, dados, acoes_por_analise.get(linha["id"], []))["atual"]
         linha["tipo_reclamacao"] = tipos.get(linha["id_mrhb"])
+        linha["tipo"] = normalizar_tipo(linha["tipo_reclamacao"]) or SEM_RECLAMACAO
         linha["area_setor"] = normalizar_setor(linha.get("area"))  # "US" -> "Usinagem" etc. (filtro por área)
 
     resumo = {}
@@ -305,7 +352,9 @@ def api_criar_analise():
         if conn.execute("SELECT 1 FROM a3_analises WHERE id_mrhb = ?", (id_mrhb,)).fetchone():
             return _erro(f"Já existe uma análise A3 para o ID {id_mrhb}.", 409)
 
-        reclamacao = buscar_reclamacao(id_mrhb) or {}
+        reclamacao = buscar_reclamacao(id_mrhb)
+        if not reclamacao:  # A3 sempre vinculado a uma reclamação do Gerenciador
+            return _erro(f"ID Wetzel {id_mrhb} não encontrado no Gerenciador. Todo A3 precisa estar vinculado a uma reclamação: cadastre a reclamação no Gerenciador primeiro (ou confira o ID).")
         analise_id = criar_analise(
             conn, id_mrhb, reclamacao,
             tema=entrada.get("tema"),
@@ -316,7 +365,7 @@ def api_criar_analise():
     finally:
         conn.close()
     sincronizar_etapas_gerenciador(analise_id)
-    return jsonify({"ok": True, "id": analise_id, "vinculado_gerenciador": bool(reclamacao)}), 201
+    return jsonify({"ok": True, "id": analise_id, "vinculado_gerenciador": True}), 201
 
 
 @bp.route("/api/analises/<int:analise_id>")
@@ -459,6 +508,9 @@ def api_listar_acoes():
     conn = conectar()
     acoes = _listar_acoes(conn, request.args.get("analise_id", type=int))
     conn.close()
+    tipos = tipos_reclamacao()
+    for a in acoes:
+        a["tipo_reclamacao"] = normalizar_tipo(tipos.get(a["id_mrhb"])) or SEM_RECLAMACAO
     # Sem "definição do problema" no A3: usa a descrição do defeito da reclamação.
     if any(not (a.get("problema") or "").strip() for a in acoes):
         defeitos = defeitos_reclamacao()
@@ -583,7 +635,16 @@ def api_dashboard():
 
     args = {c: _texto(request.args.get(c)) for c in
             ("analista", "cliente", "peca", "de", "ate", "id_mrhb", "responsavel", "setor", "grupo", "status")}
+    # Tipo de reclamação de cada A3 (botões "Tipo de reclamação"; sem o parâmetro = tipos padrão).
+    mapa_tipos = tipos_reclamacao()
+    for x in analises:
+        x["tipo"] = normalizar_tipo(mapa_tipos.get(x["id_mrhb"])) or SEM_RECLAMACAO
+    bruto = request.args.get("tipos")
+    tipos_sel = {t for t in bruto.split(",") if t.strip()} if bruto is not None else set(TIPOS_PADRAO_VISAO)
     opcoes = {
+        "tipos": _opcoes_tipos({x["tipo"] for x in analises}),
+        "tipos_padrao": TIPOS_PADRAO_VISAO,
+        "tipos_selecionados": sorted(tipos_sel, key=str.casefold),
         "analistas": _analistas({x["responsavel"] for x in analises if x["responsavel"]}),
         "pecas": sorted({x["pn_mrhb"] for x in analises if x["pn_mrhb"]}, key=str.casefold),
         "responsaveis": sorted({a["responsavel"] for a in acoes if a["responsavel"]}, key=str.casefold),
@@ -603,6 +664,7 @@ def api_dashboard():
         and (not args["de"] or (x["data_emissao"] or "")[:10] >= args["de"])
         and (not args["ate"] or (x["data_emissao"] or "")[:10] <= args["ate"])
         and (not termo_id or termo_id in x["id_mrhb"].upper())  # pesquisa por parte do ID (ex.: "7023")
+        and x["tipo"] in tipos_sel
     ]
     ids_a3 = {x["id"] for x in analises}
     acoes = [a for a in acoes if a["analise_id"] in ids_a3]
@@ -618,25 +680,21 @@ def api_dashboard():
 
     resultado = computar_dashboard(acoes, analises)
     resultado["a3_status_atual"] = _a3_status_atual(analises)
-    resultado["velocimetro"] = _velocimetro(analises, args)
+    resultado["velocimetro"] = _velocimetro(analises, args, tipos_sel)
     return jsonify({**resultado, "opcoes": opcoes})
 
 
-def _velocimetro(analises, args):
+def _velocimetro(analises, args, tipos_sel):
     """Média de dias corridos para fechar um A3 (emissão -> conclusão).
 
     Junta os A3 concluídos no módulo com o histórico de 8D fechados do
     Gerenciador (reclamações que não têm A3 no módulo, para não contar duas
-    vezes). Só tipos Formal, Informal e Logística. Segue os filtros da Visão
-    Geral (analista, cliente, peça e período)."""
-    tipos = tipos_reclamacao()
-    tipo_ok = lambda id_mrhb: tipos.get(id_mrhb) in TIPOS_VELOCIMETRO or id_mrhb not in tipos  # noqa: E731 (A3 sem reclamação conta)
+    vezes). Usa os tipos de reclamação escolhidos nos botões e os filtros da
+    Visão Geral (analista, cliente, peça e período); "analises" já vem filtrada."""
     hoje = date.today()
     dias = []
     abertos_acima = 0
     for x in analises:
-        if not tipo_ok(x["id_mrhb"]):
-            continue
         emissao = para_data(x["data_emissao"])
         if x["status"] == "Concluído":
             fechamento = para_data(x.get("data_fechamento"))
@@ -651,11 +709,10 @@ def _velocimetro(analises, args):
         conn = conectar()
         com_a3 = {l[0] for l in conn.execute("SELECT id_mrhb FROM a3_analises")}
         conn.close()
-        sql = """SELECT r.id_mrhb, julianday(e.realizacao) - julianday(r.data_abertura) AS dias
+        sql = """SELECT r.id_mrhb, julianday(e.realizacao) - julianday(r.data_abertura) AS dias, r.tipo_reclamacao
                  FROM reclamacoes r JOIN etapas_8d e ON e.reclamacao_id = r.id
-                 WHERE e.etapa = '8D Fechado' AND e.realizacao IS NOT NULL
-                   AND r.tipo_reclamacao IN ({})""".format(",".join("?" * len(TIPOS_VELOCIMETRO)))
-        params = list(TIPOS_VELOCIMETRO)
+                 WHERE e.etapa = '8D Fechado' AND e.realizacao IS NOT NULL"""
+        params = []
         for campo, coluna in (("analista", "r.responsavel_cliente"), ("cliente", "r.cliente"), ("peca", "r.pn_mrhb")):
             if args.get(campo):
                 sql += f" AND {coluna} = ?"
@@ -667,8 +724,10 @@ def _velocimetro(analises, args):
             sql += " AND r.data_abertura <= ?"
             params.append(args["ate"])
         try:
-            for id_mrhb, d in conn_ger.execute(sql, params):
+            for id_mrhb, d, tipo in conn_ger.execute(sql, params):
                 if id_mrhb in com_a3 or d is None or d < 0:  # já contado pelo A3 / data inconsistente
+                    continue
+                if normalizar_tipo(tipo) not in tipos_sel:
                     continue
                 dias.append(round(d))
                 historico += 1
@@ -746,6 +805,10 @@ def api_importar_excel():
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")  # avisos do openpyxl sobre imagens/validações do Excel
                 analise, dados, acoes = ler_a3(temporario.name)
+            if not buscar_reclamacao(analise["id_mrhb"]):
+                resultados.append({"arquivo": nome, "situacao": "erro", "id_mrhb": analise["id_mrhb"],
+                                   "mensagem": f"ID Wetzel {analise['id_mrhb']} não encontrado no Gerenciador. Todo A3 precisa estar vinculado a uma reclamação: cadastre a reclamação no Gerenciador primeiro (ou confira o ID)."})
+                continue
             conn = conectar()
             try:
                 analise_id = gravar(conn, analise, dados, acoes)

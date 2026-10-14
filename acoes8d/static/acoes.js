@@ -37,6 +37,7 @@
     de: parametros.get("de") || "",
     ate: parametros.get("ate") || "",
     peca: parametros.get("peca") || "",
+    tipos: (parametros.get("tipos") || "").split(",").filter(Boolean), // vazio até carregar o padrão
     ordenarPor: "situacao",
     crescente: true,
   };
@@ -58,6 +59,16 @@
   // Filtros que podem chegar pela URL (cliques na Visão Geral / pessoa clicada):
   // aparecem como etiquetas removíveis acima da lista.
   const ROTULOS_RECEBIDOS = { responsavel: "Responsável da ação", setor: "Setor", grupo: "Tipo", status: "Status", peca: "Peça" };
+  let tiposOpcoes = [];
+  let tiposPadrao = [];
+  const mesmaLista = (a, b) => a.length === b.length && a.every((t) => b.includes(t));
+  function desenharTipos() {
+    A8.botoesTipos(document.getElementById("a8-f-tipos-botoes"), tiposOpcoes, estado.tipos, (novos) => {
+      estado.tipos = novos;
+      desenharTipos();
+      renderizar();
+    });
+  }
   const ROTULOS_BARRA = { analista: "Analista", cliente: "Cliente", de: "De", ate: "Até", id_mrhb: "ID Wetzel" };
   // Mesmo filtro "Status" da Visão Geral.
   const FILTROS_STATUS = {
@@ -77,6 +88,11 @@
       return;
     }
     await preencherFiltros();
+    const m = await A8.modelo();
+    tiposOpcoes = m.tipos_reclamacao || [];
+    tiposPadrao = m.tipos_padrao || [];
+    if (!estado.tipos.length) estado.tipos = [...tiposPadrao]; // padrão: Formal, Informal, Logística
+    desenharTipos();
     renderizar();
   }
 
@@ -115,6 +131,7 @@
       if (estado.de && emissao < estado.de) return false;
       if (estado.ate && emissao > estado.ate) return false;
       if (estado.peca && a.pn_mrhb !== estado.peca) return false;
+      if (estado.tipos.length && !estado.tipos.includes(a.tipo_reclamacao)) return false;
       if (estado.responsavel && a.responsavel !== estado.responsavel) return false;
       if (estado.cliente && a.cliente !== estado.cliente) return false;
       if (estado.grupo && a.grupo !== estado.grupo) return false;
@@ -156,7 +173,7 @@
 
   function renderizar() {
     document.getElementById("a8-f-limpar").disabled = ![...Object.keys(ROTULOS_BARRA), ...Object.keys(ROTULOS_RECEBIDOS)]
-      .some((k) => estado[k]) && estado.situacao === "todas";
+      .some((k) => estado[k]) && estado.situacao === "todas" && mesmaLista(estado.tipos, tiposPadrao);
     const base = filtrarSemSituacao();
     renderizarKpis(base);
     renderizarAreas();
@@ -307,6 +324,7 @@
     for (const [chave, rotulo] of Object.entries(ROTULOS_BARRA)) {
       if (estado[chave]) partes.push(`${rotulo}: ${chave === "de" || chave === "ate" ? fmtData(estado[chave]) : estado[chave]}`);
     }
+    if (estado.tipos.length) partes.push(`Tipo de reclamação: ${estado.tipos.join(", ")}`);
     for (const [chave, rotulo] of Object.entries(ROTULOS_RECEBIDOS)) {
       if (estado[chave]) partes.push(`${chave === "setor" ? "Área" : rotulo}: ${textoRecebido(chave)}`);
     }
@@ -315,6 +333,7 @@
 
   function sincronizarUrl() {
     const p = new URLSearchParams();
+    if (estado.tipos.length && !mesmaLista(estado.tipos, tiposPadrao)) p.set("tipos", estado.tipos.join(","));
     for (const chave of ["situacao", "analista", "cliente", "de", "ate", "id_mrhb", "responsavel", "setor", "grupo", "status", "peca"]) {
       if (estado[chave] && !(chave === "situacao" && estado[chave] === "todas")) p.set(chave, estado[chave]);
     }
@@ -351,7 +370,8 @@
     });
   }
   document.getElementById("a8-f-limpar").addEventListener("click", () => {
-    Object.assign(estado, { analista: "", cliente: "", de: "", ate: "", id_mrhb: "", responsavel: "", setor: "", grupo: "", status: "", peca: "", situacao: "todas" });
+    Object.assign(estado, { analista: "", cliente: "", de: "", ate: "", id_mrhb: "", responsavel: "", setor: "", grupo: "", status: "", peca: "", tipos: [...tiposPadrao], situacao: "todas" });
+    desenharTipos();
     Object.values(campos).forEach((campo) => (campo.value = ""));
     renderizar();
   });

@@ -32,17 +32,18 @@ log = logging.getLogger(__name__)
 
 # (nome no Gerenciador, dias a partir da abertura) — mesma ordem e prazos.
 ETAPAS_8D = [
+    # Prazos em dias a partir da abertura (emissão) do A3. Máximo: 30 dias (8D fechado).
     ("Contenção", 1),
     ("Causa Raiz", 2),
-    ("Ação Corretiva", 16),
-    ("Poka Yoke", 16),
-    ("LPA", 17),
-    ("Validação", 35),
-    ("Trab. Padronizado", 36),
-    ("FMEA", 37),
-    ("Plano de Controle", 38),
-    ("Lições Aprendidas", 43),
-    ("8D Fechado", 44),
+    ("Ação Corretiva", 10),
+    ("Poka Yoke", 10),
+    ("LPA", 12),
+    ("Validação", 24),
+    ("Trab. Padronizado", 25),
+    ("FMEA", 26),
+    ("Plano de Controle", 27),
+    ("Lições Aprendidas", 29),
+    ("8D Fechado", 30),
 ]
 
 # Etapa flexível -> linha da seção 6 (Retroalimentação) que a representa.
@@ -178,8 +179,8 @@ def sincronizar_etapas_gerenciador(analise_id):
                 return False
             for e in resultado["etapas"]:
                 gerenciador.execute(
-                    "UPDATE etapas_8d SET realizacao = ?, aplicavel = ? WHERE reclamacao_id = ? AND etapa = ?",
-                    (e["realizacao"], 1 if e["aplicavel"] else 0, linha[0], e["etapa"]),
+                    "UPDATE etapas_8d SET realizacao = ?, aplicavel = ?, prazo = COALESCE(?, prazo) WHERE reclamacao_id = ? AND etapa = ?",
+                    (e["realizacao"], 1 if e["aplicavel"] else 0, e["prazo"], linha[0], e["etapa"]),
                 )
             gerenciador.commit()
             return True

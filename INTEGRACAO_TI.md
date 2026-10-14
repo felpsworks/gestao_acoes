@@ -227,7 +227,7 @@ importação de Excel avisam que a biblioteca não está instalada.
   - máquina (MQ US / MQ IN);
   - responsável (Responsável Cliente);
   - definição do problema (Descrição do Defeito);
-  - emissão (data de abertura) e prazo limite (emissão + 31 dias);
+  - emissão (data de abertura) e prazo limite (emissão + 30 dias);
   - tema "Resposta Rapida".
 
   O item do Check List **"Abrir A3 no gerenciador"** já vem marcado como OK, e
@@ -355,7 +355,8 @@ acoes8d/
   - Aberta no prazo → **Y**
   - Cancelada → fica fora das métricas
 - **Dias em aberto:** da data de abertura até hoje, ou até a conclusão.
-- **Prazo limite do A3:** emissão + 31 dias (FM-QS-025 rev. 05).
+- **Prazo limite do A3:** emissão + 30 dias. As etapas do 8D vão de D+1 (Contenção) a D+30 (8D Fechado);
+  para as reclamações com A3, o módulo grava esses prazos também em `etapas_8d.prazo`.
 - **Prazos sugeridos ao lançar uma ação:**
   - Contenção: emissão + 1 dia
   - Corretiva: emissão + 14 dias

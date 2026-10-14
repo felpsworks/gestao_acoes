@@ -158,6 +158,22 @@ const A8 = (() => {
     return desenhar;
   }
 
+  // Botões "Tipo de reclamação" (vários marcados; pelo menos um). aoMudar(novaLista).
+  function botoesTipos(caixa, opcoes, selecionados, aoMudar) {
+    caixa.innerHTML = "";
+    opcoes.forEach((tipo) => caixa.appendChild(criar("button", {
+      type: "button",
+      classe: `a8-botao-filtro ${selecionados.includes(tipo) ? "ativo" : ""}`,
+      "aria-pressed": String(selecionados.includes(tipo)),
+      texto: tipo,
+      onclick: () => {
+        const novos = selecionados.includes(tipo) ? selecionados.filter((t) => t !== tipo) : [...selecionados, tipo];
+        if (!novos.length) { toast("Mantenha pelo menos um tipo de reclamação marcado.", "erro"); return; }
+        aoMudar(novos);
+      },
+    })));
+  }
+
   function badgeSituacao(acao) {
     const mapa = {
       atrasada: ["critico", `Atrasada · ${acao.dias_atraso} d`],
@@ -405,6 +421,7 @@ const A8 = (() => {
     badgeSituacao,
     filtrosA3DaUrl,
     botoesDoSelect,
+    botoesTipos,
     preencherSelect,
     abrirModalAcao: (contexto) => modal.abrir(contexto),
   };

@@ -28,15 +28,18 @@ TEMAS = [
 
 TURNOS = ["T1", "T2", "T3", "ADM"]
 
-# Revisão 05 do FM-QS-025: prazo limite das ações = 31 dias após a abertura do A3.
-DIAS_PRAZO_LIMITE_A3 = 31
+# Prazo limite do A3 (e de todas as etapas do 8D): 30 dias após a abertura do A3.
+DIAS_PRAZO_LIMITE_A3 = 30
 
 # Velocímetro da Visão Geral: média de dias corridos para fechar um A3.
 META_DIAS_FECHAR_A3 = 30
 # Faixas (limite superior em dias, cor): verde até a meta, amarelo, laranja, vermelho.
 FAIXAS_VELOCIMETRO = [(30, "#4cb848"), (44, "#f9c80e"), (60, "#f06a23"), (None, "#e8292a")]
-# Tipos de reclamação que entram no velocímetro.
-TIPOS_VELOCIMETRO = {"Formal", "Informal", "Logística"}
+# Visão Geral: tipos de reclamação considerados por padrão (botões "Tipo de reclamação").
+# "Sem reclamação" = A3 antigo sem reclamação no Gerenciador. Hoje todo A3 novo é
+# obrigatoriamente vinculado a uma reclamação, então esse grupo só aparece se existir.
+SEM_RECLAMACAO = "Sem reclamação"
+TIPOS_PADRAO_VISAO = ["Formal", "Informal", "Logística"]
 
 # Aba "Check Atividades Reclamação". A chave é fixa (não muda se o texto da
 # atividade for corrigido), para não perder o que já foi preenchido.
@@ -131,11 +134,11 @@ PORQUES = [
 GRUPOS_ACAO = [
     {"chave": "contencao", "rotulo": "Contenção", "secao": "3", "dias_sugeridos": 1,
      "subgrupos": ["3.1 Nacional", "3.2 Exportação"]},
-    {"chave": "corretiva", "rotulo": "Corretiva", "secao": "5", "dias_sugeridos": 14,
+    {"chave": "corretiva", "rotulo": "Corretiva", "secao": "5", "dias_sugeridos": 10,
      "subgrupos": ["Ocorrência", "Detecção", "Sistêmico"]},
-    {"chave": "preventiva", "rotulo": "Preventiva", "secao": "5", "dias_sugeridos": 35,
+    {"chave": "preventiva", "rotulo": "Preventiva", "secao": "5", "dias_sugeridos": 25,
      "subgrupos": ["Ocorrência", "Detecção", "Sistêmico"]},
-    {"chave": "retroalimentacao", "rotulo": "Retroalimentação", "secao": "6", "dias_sugeridos": 35,
+    {"chave": "retroalimentacao", "rotulo": "Retroalimentação", "secao": "6", "dias_sugeridos": 25,
      "subgrupos": [
          "Poka Yoke",
          "PFMEA",

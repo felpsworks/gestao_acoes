@@ -132,6 +132,12 @@ def init_db(caminho):
             SELECT p.setor FROM a3_pessoas p WHERE p.nome = a3_acoes.responsavel AND TRIM(COALESCE(p.setor, '')) != '')
         WHERE TRIM(COALESCE(setor, '')) = ''
           AND EXISTS (SELECT 1 FROM a3_pessoas p WHERE p.nome = a3_acoes.responsavel AND TRIM(COALESCE(p.setor, '')) != '')""")
+    # Prazo limite padrão passou de 31 para 30 dias: ajusta os A3 em andamento que ainda
+    # estavam com o valor padrão antigo (prazos alterados à mão não são tocados).
+    conn.execute(
+        """UPDATE a3_analises SET prazo_limite = date(data_emissao, '+30 day')
+           WHERE status = 'Em andamento' AND prazo_limite = date(data_emissao, '+31 day')"""
+    )
     # Recalcula o status automático de todos os A3 (ex.: depois de uma atualização do sistema).
     from .regras import status_automatico_a3
 
@@ -176,6 +182,12 @@ def buscar_reclamacao(id_mrhb):
         return None
     finally:
         conn.close()
+
+
+def normalizar_tipo(tipo):
+    """"informativo" / " Informativo " -> "Informativo" (o Gerenciador tem grafias diferentes)."""
+    tipo = " ".join((tipo or "").split())
+    return tipo[:1].upper() + tipo[1:].lower() if tipo else ""
 
 
 def tipos_reclamacao():

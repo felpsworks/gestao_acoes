@@ -11,9 +11,10 @@
     peca: document.getElementById("a8-d-peca"),
     de: document.getElementById("a8-d-de"),
     ate: document.getElementById("a8-d-ate"),
+    tipos: document.getElementById("a8-d-tipos"), // lista separada por vírgula (vazio = tipos padrão)
   };
   const ROTULOS_FILTRO = {
-    analista: "Analista", cliente: "Cliente", peca: "Peça", de: "De", ate: "Até",
+    analista: "Analista", cliente: "Cliente", peca: "Peça", de: "De", ate: "Até", tipos: "Tipos",
   };
   // Filtros vindos na URL (ex.: link compartilhado ou botão Voltar).
   const daUrl = new URLSearchParams(location.search);
@@ -38,6 +39,7 @@
   function irParaAnalises(extra = {}) {
     const p = new URLSearchParams();
     for (const chave of ["analista", "cliente", "peca", "de", "ate"]) if (filtros[chave].value) p.set(chave, filtros[chave].value);
+    p.set("tipos", tiposEmUso());
     for (const [chave, valor] of Object.entries(extra)) if (valor) p.set(chave, valor);
     window.location.href = `${A8.base}/analises${p.toString() ? `?${p}` : ""}`;
   }
@@ -46,6 +48,7 @@
     const p = new URLSearchParams();
     for (const [chave, campo] of Object.entries(filtros)) if (campo.value.trim()) p.set(chave, campo.value.trim());
     for (const [chave, valor] of Object.entries(extra)) if (valor) p.set(chave, valor);
+    p.set("tipos", tiposEmUso()); // a lista sempre recebe os tipos em uso (inclusive o padrão)
     window.location.href = `${A8.base}/acoes?${p}`;
   }
 
@@ -85,6 +88,9 @@
       select.value = lista.some((o) => (Array.isArray(o) ? o[0] : o) === atual) ? atual : "";
     };
     manter(filtros.analista, opcoes.analistas, "Todos");
+    tiposPadrao = opcoes.tipos_padrao || [];
+    filtros.tipos.value = mesmaLista(opcoes.tipos_selecionados, tiposPadrao) ? "" : opcoes.tipos_selecionados.join(",");
+    desenharTipos(opcoes.tipos, opcoes.tipos_selecionados);
     desenharAnalistas();
     manter(filtros.cliente, opcoes.clientes, "Todos");
     manter(filtros.peca, opcoes.pecas, "Todas");
@@ -94,6 +100,7 @@
   // Etiquetas dos filtros ativos ("Setor: Qualidade ×").
   function textoDoFiltro(chave) {
     const campo = filtros[chave];
+    if (chave === "tipos") return campo.value.split(",").join(", ");
     if (campo.type === "date") return fmtData(campo.value);
     if (campo.tagName === "SELECT") return campo.selectedOptions[0] ? campo.selectedOptions[0].text : campo.value;
     return campo.value.trim();
@@ -102,7 +109,7 @@
   function renderizarFiltrosAtivos() {
     const caixa = document.getElementById("a8-d-ativos");
     caixa.innerHTML = "";
-    const ativos = Object.keys(filtros).filter((k) => filtros[k].value.trim());
+    const ativos = Object.keys(filtros).filter((k) => filtros[k].value.trim()); // tipos: só aparece se fugir do padrão
     caixa.hidden = !ativos.length;
     document.getElementById("a8-d-limpar").disabled = !ativos.length;
     if (!ativos.length) return;
@@ -121,6 +128,27 @@
     .filter((k) => filtros[k].value.trim())
     .map((k) => `${ROTULOS_FILTRO[k]}: ${textoDoFiltro(k)}`)
     .join(" · ");
+
+  // --- Botões "Tipo de reclamação" (vários marcados ao mesmo tempo) --------------------
+  let tiposPadrao = [];
+  const tiposEmUso = () => filtros.tipos.value || tiposPadrao.join(",");
+  const mesmaLista = (a, b) => a.length === b.length && a.every((t) => b.includes(t));
+  function desenharTipos(opcoes, selecionados) {
+    const caixa = document.getElementById("a8-d-tipos-botoes");
+    caixa.innerHTML = "";
+    opcoes.forEach((tipo) => caixa.appendChild(criar("button", {
+      type: "button",
+      classe: `a8-botao-filtro ${selecionados.includes(tipo) ? "ativo" : ""}`,
+      "aria-pressed": String(selecionados.includes(tipo)),
+      texto: tipo,
+      onclick: () => {
+        const novos = selecionados.includes(tipo) ? selecionados.filter((t) => t !== tipo) : [...selecionados, tipo];
+        if (!novos.length) { A8.toast("Mantenha pelo menos um tipo de reclamação marcado.", "erro"); return; }
+        filtros.tipos.value = mesmaLista(novos, tiposPadrao) ? "" : novos.join(",");
+        carregar();
+      },
+    })));
+  }
 
   function limparFiltros() {
     Object.values(filtros).forEach((campo) => (campo.value = ""));

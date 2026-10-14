@@ -32,6 +32,10 @@
     <span class="a8-etiqueta-filtro" id="a8-filtro-etapa-aviso" hidden><span></span><button type="button" class="a8-etiqueta-remover" aria-label="Remover filtro de etapa" title="Remover filtro">×</button></span>
     <span class="contador" id="a8-contador-analises"></span>
   </div>
+  <div class="a8-toolbar-tipos">
+    <span class="dash-filtro-rotulo">Tipo de reclamação:</span>
+    <div class="a8-botoes-filtro" id="a8-tipos-a3-botoes" role="group" aria-label="Tipo de reclamação"></div>
+  </div>
   <div class="table-wrap">
     <table id="a8-tabela-analises">
       {# larguras em % (soma 100): a tabela cabe na tela, sem rolagem lateral #}
@@ -66,7 +70,7 @@
     <div class="modal-header">
       <div>
         <h2>Nova análise A3</h2>
-        <p class="subtitle-modal">Busque a reclamação já cadastrada no Gerenciador.</p>
+        <p class="subtitle-modal">Busque a reclamação já cadastrada no Gerenciador. O A3 só pode ser criado para um ID Wetzel existente.</p>
       </div>
       <button type="button" class="modal-close" data-fechar aria-label="Fechar">&times;</button>
     </div>
@@ -93,7 +97,7 @@
       <div class="field">
         <label for="a8-nova-emissao">Data de emissão</label>
         <input id="a8-nova-emissao" name="data_emissao" type="date" />
-        <span class="hint">Padrão: data de abertura da reclamação no Gerenciador. O prazo limite (emissão + 31 dias) é calculado automaticamente.</span>
+        <span class="hint">Padrão: data de abertura da reclamação no Gerenciador. O prazo limite (emissão + 30 dias) é calculado automaticamente.</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" data-fechar>Cancelar</button>

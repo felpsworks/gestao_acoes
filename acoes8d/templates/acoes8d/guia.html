@@ -1,0 +1,217 @@
+{% extends "acoes8d/_layout.html" %}
+{% block titulo_a8 %}Guia{% endblock %}
+{% block conteudo_a8 %}
+<div class="a8-pagina-larga a8-guia">
+  <div class="page-header">
+    <h1>Guia do sistema 8D</h1>
+    <p class="subtitle">As regras que o sistema aplica sozinho e que nem sempre aparecem na tela. Use a busca ou o índice para ir direto ao assunto.</p>
+  </div>
+
+  <div class="a8-guia-busca">
+    <input type="search" id="a8-guia-busca" placeholder="Buscar no guia (ex.: prazo, concluído, setor, importar)…" aria-label="Buscar no guia" autocomplete="off" />
+    <span id="a8-guia-contagem" class="a8-guia-contagem"></span>
+  </div>
+
+  <div class="a8-guia-corpo">
+    <nav class="a8-guia-indice card" aria-label="Índice do guia">
+      <strong>Índice</strong>
+      <a href="#inicio">1. Em poucas palavras</a>
+      <a href="#a3">2. Formulário A3</a>
+      <a href="#etapas">3. Etapas do 8D</a>
+      <a href="#acoes">4. Gestão de Ações</a>
+      <a href="#visao">5. Visão Geral</a>
+      <a href="#cadastro">6. Cadastro e setores</a>
+      <a href="#importar">7. Importar A3 do Excel</a>
+      <a href="#duvidas">8. Dúvidas frequentes</a>
+    </nav>
+
+    <div class="a8-guia-conteudo">
+
+      <section class="card a8-guia-secao" id="inicio">
+        <h2>1. Em poucas palavras</h2>
+        <ul>
+          <li><strong>Todo A3 é ligado a uma reclamação do Gerenciador</strong> pelo <strong>ID Wetzel</strong>. Não existe A3 sem ID Wetzel válido.</li>
+          <li><strong>Reclamação nova = A3 automático.</strong> Ao cadastrar uma reclamação no Gerenciador (de qualquer tipo), o A3 dela já nasce preenchido com cliente, PN, defeito, área e responsável.</li>
+          <li><strong>Tudo é salvo sozinho</strong> enquanto você digita (aparece "✓ Salvo" no topo do A3).</li>
+          <li><strong>O status do A3 é automático:</strong> ninguém marca "Concluído" à mão (ver <a href="#a3-status">regra de conclusão</a>).</li>
+          <li><strong>As etapas do 8D são reconhecidas pelo próprio A3</strong> e gravadas no Gerenciador — não existe mais tela de "Etapas 8D" para preencher.</li>
+          <li><strong>Os indicadores mostram, por padrão, só reclamações {{ tipos_padrao|join(", ") }}</strong> (botões "Tipo de reclamação").</li>
+        </ul>
+      </section>
+
+      <section class="card a8-guia-secao" id="a3">
+        <h2>2. Formulário A3</h2>
+
+        <h3 id="a3-status">Status do A3</h3>
+        <table class="a8-guia-tabela">
+          <thead><tr><th>Status</th><th>Quando acontece</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge-status atencao">Em andamento</span></td><td>Situação normal enquanto o A3 não cumpre todas as condições de conclusão.</td></tr>
+            <tr><td><span class="badge-status ok">Concluído</span></td><td><strong>Automático</strong>, quando as três condições são verdadeiras ao mesmo tempo:
+              <ol>
+                <li>todas as ações do A3 (exceto canceladas) estão concluídas (<strong>G</strong>);</li>
+                <li>todas as etapas do 8D anteriores ao fechamento estão realizadas (as <em>não aplicáveis</em> não contam);</li>
+                <li>a <strong>Validação pelo Emissor</strong> (seção 8) está marcada como <strong>"8D Aprovado"</strong>.</li>
+              </ol>
+              Se alguma condição deixar de valer (ex.: uma ação reaberta), o A3 volta sozinho para "Em andamento".</td></tr>
+            <tr><td><span class="badge-status cancelada">Cancelado</span></td><td>Só manual (campo "Status do A3"). Um A3 cancelado sai de todos os indicadores.</td></tr>
+          </tbody>
+        </table>
+        <p class="a8-guia-nota"><strong>"8D Aprovado" fica bloqueado</strong> enquanto houver etapa pendente: a seção 8 mostra quais faltam ("Para aprovar, faltam: …").</p>
+
+        <h3>Prazos e datas</h3>
+        <ul>
+          <li><strong>Prazo limite do A3</strong> = data de emissão + <strong>{{ dias_prazo_limite }} dias</strong> (calculado sozinho).</li>
+          <li><strong>A3 atrasado</strong> = em andamento com o prazo limite já vencido.</li>
+          <li><strong>Data de fechamento</strong> = data de conclusão da <strong>última ação</strong> (não o dia em que o sistema reconheceu o fechamento).</li>
+          <li><strong>Prazo sugerido das ações</strong> ao lançar: contenção {{ dias_acao.contencao }} dia, corretiva {{ dias_acao.corretiva }} dias, preventiva e retroalimentação {{ dias_acao.preventiva }} dias (pode ser alterado).</li>
+        </ul>
+
+        <h3>Ações dentro do A3</h3>
+        <ul>
+          <li>Uma linha de ação só vira ação de verdade (aparece na Gestão de Ações e nos indicadores) quando tem <strong>descrição, responsável e prazo</strong>.</li>
+          <li><strong>Farol da coluna Status:</strong> <strong>G</strong> = concluída, <strong>Y</strong> = em andamento. Ação aberta com prazo vencido aparece como atrasada.</li>
+          <li><strong>Seção 3.1 (contenção nacional):</strong> as ações padrão com campos (nº do alerta, NF e QTD do ponto de corte) <strong>só podem ir para G com esses campos preenchidos</strong>.</li>
+          <li><strong>Seção 3.2 (exportação)</strong> só entra nas regras quando a caixa <strong>"Aplicável"</strong> estiver marcada.</li>
+          <li><strong>Seção 6 (retroalimentação):</strong> marcar <strong>N/A</strong> numa linha torna a etapa correspondente <em>não aplicável</em>; linha sem ação também.</li>
+          <li><strong>Seção 7 (eficácia):</strong> basta <strong>uma</strong> ação em G para a etapa "Validação" contar como realizada.</li>
+          <li>O <strong>setor</strong> da ação vem do cadastro do responsável (ver <a href="#cadastro">Cadastro</a>).</li>
+        </ul>
+
+        <h3>Impressão e evidências</h3>
+        <ul>
+          <li><strong>"Imprimir / PDF"</strong> gera a folha em <strong>uma página A3 paisagem</strong>; escolha "Salvar como PDF" para gerar o arquivo.</li>
+          <li>Evidências marcadas na coluna "Imprimir" saem em páginas seguintes, uma por página. Evidência em PDF é convertida em imagem.</li>
+        </ul>
+      </section>
+
+      <section class="card a8-guia-secao" id="etapas">
+        <h2>3. Etapas do 8D</h2>
+        <p>O sistema descobre em que etapa cada reclamação está olhando o A3. O prazo de cada etapa é contado a partir da <strong>emissão do A3</strong>. A faixa "Etapas do 8D" no topo de cada A3 mostra a situação; clique numa etapa para ir até a seção.</p>
+        <table class="a8-guia-tabela">
+          <thead><tr><th>Etapa</th><th>Prazo</th><th>Seção do A3</th><th>Conta como realizada quando</th></tr></thead>
+          <tbody>
+            {% for nome, dias in etapas %}
+            <tr>
+              <td><strong>{{ nome }}</strong></td>
+              <td>emissão + {{ dias }} {{ "dia" if dias == 1 else "dias" }}</td>
+              <td>{{ secao_da_etapa.get(nome, ("—", ""))[0] }}</td>
+              <td>{{ secao_da_etapa.get(nome, ("", "—"))[1] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p class="a8-guia-nota">Etapa <strong>não aplicável</strong> (ex.: Poka Yoke com N/A) não bloqueia o fechamento. Reclamações antigas, cadastradas antes da implantação, ficam com as etapas como estavam no Gerenciador.</p>
+      </section>
+
+      <section class="card a8-guia-secao" id="acoes">
+        <h2>4. Gestão de Ações</h2>
+        <table class="a8-guia-tabela">
+          <thead><tr><th>Situação</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge-status ok">Concluída</span></td><td>Status "Concluída" (G).</td></tr>
+            <tr><td><span class="badge-status atencao">No prazo</span></td><td>Aberta e o prazo ainda não venceu. Mostra "Vence em N d" quando faltam até {{ dias_alerta }} dias.</td></tr>
+            <tr><td><span class="badge-status critico">Atrasada</span></td><td>Aberta e o prazo já passou.</td></tr>
+            <tr><td><span class="badge-status cancelada">Cancelada</span></td><td>Fica fora de todos os totais, cards e gráficos.</td></tr>
+          </tbody>
+        </table>
+        <ul>
+          <li><strong>Mudar o prazo de uma ação exige um motivo</strong> (reprogramação). O prazo original fica guardado e a ação mostra "↻".</li>
+          <li><strong>Botões de área</strong> (Usinagem, Injeção…) filtram pelo setor da ação; clique de novo para desfazer.</li>
+          <li><strong>Cards</strong> (Total, Abertas, Fechadas, Atrasadas) também filtram a lista ao clicar.</li>
+          <li><strong>"Ações abertas por responsável"</strong> mostra só quem tem ação aberta; clique numa pessoa para filtrar.</li>
+          <li>O <strong>Exportar CSV</strong> leva exatamente o que está na tela (com os filtros aplicados).</li>
+        </ul>
+      </section>
+
+      <section class="card a8-guia-secao" id="visao">
+        <h2>5. Visão Geral (indicadores)</h2>
+        <h3>Filtros</h3>
+        <ul>
+          <li><strong>Tipo de reclamação:</strong> por padrão só <strong>{{ tipos_padrao|join(", ") }}</strong>. Alerta, Informativo e outros só entram se você ligar o botão. O mesmo filtro existe no Formulário A3 e na Gestão de Ações.</li>
+          <li><strong>Analista responsável</strong> = campo "Responsável" da reclamação no Gerenciador.</li>
+          <li><strong>Período</strong> = data de emissão do A3 (início e/ou fim).</li>
+          <li>Ao clicar num card ou gráfico, a aba que abre já vem com os mesmos filtros.</li>
+        </ul>
+        <h3>Como cada indicador é calculado</h3>
+        <table class="a8-guia-tabela">
+          <thead><tr><th>Indicador</th><th>Regra</th></tr></thead>
+          <tbody>
+            <tr><td>Cards de A3</td><td>Total sem cancelados; abertos = em andamento; fechados = concluídos (8D aprovado).</td></tr>
+            <tr><td>Total geral A3</td><td>Atrasado = em andamento com prazo limite vencido; no prazo; concluído.</td></tr>
+            <tr><td><strong>Média fechamento A3</strong> (velocímetro)</td><td>Média de <strong>dias corridos</strong> da emissão ao fechamento dos A3 concluídos, <strong>incluindo o histórico de 8D fechados do Gerenciador</strong>. Meta: <strong>{{ meta }} dias</strong>. Faixas: verde até {{ meta }}, amarelo até 44, laranja até 60, vermelho acima. O rodapé mostra quantos % fecharam dentro da meta.</td></tr>
+            <tr><td>A3 por área</td><td>Setor responsável pelo problema (Usinagem ou Injeção). Siglas "US"/"IN" contam como Usinagem/Injeção; registros com as duas áreas juntas não entram.</td></tr>
+            <tr><td>Evolução mensal (A3 e ações)</td><td>Últimos 12 meses: abertos pela data de emissão/abertura, concluídos pela data de fechamento/conclusão.</td></tr>
+            <tr><td>Status A3</td><td>A3 em andamento e a etapa atual do 8D (em vermelho quando a etapa está atrasada).</td></tr>
+            <tr><td>Ações por responsável</td><td>Só pessoas com ação em aberto; verde = concluídas, cinza = no prazo, vermelho = atrasadas.</td></tr>
+            <tr><td>(Ações) % por setor</td><td>Percentual do total de ações de cada setor que tem ações; ações sem setor aparecem em "Sem setor".</td></tr>
+          </tbody>
+        </table>
+        <h3>Organizar gráficos</h3>
+        <p>"Organizar gráficos" permite arrastar os quadros para qualquer painel e mudar a largura (⇔). A arrumação fica <strong>salva no navegador de cada computador</strong>; "Restaurar padrão" volta ao original.</p>
+      </section>
+
+      <section class="card a8-guia-secao" id="cadastro">
+        <h2>6. Cadastro e setores</h2>
+        <ul>
+          <li><strong>Setores oficiais:</strong> {{ setores|join(", ") }}.</li>
+          <li>Nomes antigos são convertidos sozinhos: Processo/Produção US → Usinagem, Processo/Produção IN → Injeção, Metrologia → Qualidade.</li>
+          <li><strong>O setor da ação = setor do responsável no Cadastro.</strong> Ação sem setor recebe o setor da pessoa automaticamente; ao corrigir o setor de alguém, as ações dela que estavam sem setor também são corrigidas. Ação com setor já escolhido não é alterada.</li>
+          <li>Quem recebe uma ação entra sozinho no Cadastro — mas <strong>sem setor</strong>: complete o setor dele.</li>
+          <li><strong>Corrigir o nome</strong> de uma pessoa corrige também as ações já atribuídas a ela. Evite variações do mesmo nome (cada grafia conta como uma pessoa diferente nos gráficos).</li>
+        </ul>
+      </section>
+
+      <section class="card a8-guia-secao" id="importar">
+        <h2>7. Importar A3 do Excel</h2>
+        <ul>
+          <li>Botão <strong>"Importar A3 (Excel)"</strong> no Formulário A3; aceita vários arquivos .xlsx (modelo FM-QS-025, folha "FRP - A3").</li>
+          <li>O <strong>ID Wetzel é lido do campo "Nº" da planilha</strong>, não do nome do arquivo.</li>
+          <li>O ID precisa <strong>existir no Gerenciador</strong>; se não existir, o arquivo é recusado.</li>
+          <li>Se já houver A3 com aquele ID, o arquivo é <strong>ignorado</strong> — nada é sobrescrito.</li>
+          <li>Ações com G na planilha entram como concluídas; Y/R como em andamento; linhas sem responsável não são importadas.</li>
+        </ul>
+      </section>
+
+      <section class="card a8-guia-secao" id="duvidas">
+        <h2>8. Dúvidas frequentes</h2>
+        <details><summary>Marquei todas as ações em G e o A3 não ficou "Concluído". Por quê?</summary>
+          <p>Faltam as outras condições: alguma etapa do 8D pendente (veja a faixa "Etapas do 8D") ou a seção 8 sem "8D Aprovado".</p></details>
+        <details><summary>Não consigo marcar "8D Aprovado".</summary>
+          <p>Ainda há etapas anteriores pendentes. A seção 8 lista quais faltam; conclua-as primeiro.</p></details>
+        <details><summary>Por que não consigo criar um A3 com este ID?</summary>
+          <p>O ID Wetzel não existe no Gerenciador. Cadastre a reclamação lá primeiro (o A3 nasce automaticamente) ou confira o ID.</p></details>
+        <details><summary>Uma reclamação sumiu dos indicadores.</summary>
+          <p>Confira os botões "Tipo de reclamação": Alerta, Informativo e outros tipos ficam desligados por padrão. Também confira os demais filtros e se o A3 não está cancelado.</p></details>
+        <details><summary>A ação ficou "Sem setor".</summary>
+          <p>O responsável não tem setor no Cadastro (ou o nome está escrito diferente). Complete o setor da pessoa e a ação é corrigida sozinha.</p></details>
+        <details><summary>O indicador "Online" ficou cinza ("Offline").</summary>
+          <p>O navegador não está conseguindo falar com o servidor. Verifique a rede; se persistir, avise o TI.</p></details>
+      </section>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts_a8 %}
+<script>
+  // Busca no guia: mostra só as seções com o termo e destaca as ocorrências.
+  (() => {
+    const campo = document.getElementById("a8-guia-busca");
+    const contagem = document.getElementById("a8-guia-contagem");
+    const secoes = [...document.querySelectorAll(".a8-guia-secao")];
+    const normalizar = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+    campo.addEventListener("input", () => {
+      const termo = normalizar(campo.value.trim());
+      let visiveis = 0;
+      secoes.forEach((s) => {
+        const achou = !termo || normalizar(s.textContent).includes(termo);
+        s.hidden = !achou;
+        if (achou) visiveis += 1;
+        s.querySelectorAll("details").forEach((d) => { d.open = !!termo && normalizar(d.textContent).includes(termo); });
+      });
+      contagem.textContent = termo ? (visiveis ? `${visiveis} seção(ões) com "${campo.value.trim()}"` : "Nada encontrado") : "";
+    });
+  })();
+</script>
+{% endblock %}
